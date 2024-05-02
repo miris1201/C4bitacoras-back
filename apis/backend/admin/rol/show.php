@@ -26,7 +26,6 @@ $app->post('/admin/rol/show',function(Request $request, Response $response){
 	$menu	 = array();
 	
 	try{
-		
 		if($idShow == ""){
 			throw new Exception("No se recibió la información de manera correcta");
 		}

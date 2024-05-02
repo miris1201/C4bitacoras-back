@@ -56,13 +56,13 @@ class Rol extends BD
     
             }
 
-            $queryReg = "SELECT id, 
+            $queryReg = "SELECT id_rol, 
                                 rol, 
                                 descripcion, 
                                 activo
                            FROM ws_rol 
                            WHERE 1 $condition
-                          ORDER BY id DESC " . $milimite;
+                          ORDER BY id_rol DESC " . $milimite;
 
             $result = $this->conn->prepare($queryReg);
             $result->execute();
@@ -76,12 +76,12 @@ class Rol extends BD
 
     public function getAllRoles(){
         try {
-            $query = "SELECT id, 
+            $query = "SELECT id_rol, 
                              rol, 
                              descripcion  
                         FROM ws_rol 
                        WHERE activo = 1
-                       ORDER BY id ASC";
+                       ORDER BY id_rol ASC";
 
             $result = $this->conn->prepare($query);
             $result->execute();
@@ -109,7 +109,7 @@ class Rol extends BD
 
     public function getReg(){
         try {
-            $queryMP = "SELECT id, rol, descripcion FROM ws_rol ORDER BY id DESC";
+            $queryMP = "SELECT id_rol, rol, descripcion FROM ws_rol ORDER BY id_rol DESC";
             $result = $this->conn->prepare($queryMP);
             $result->execute();
             return $result;
@@ -122,12 +122,12 @@ class Rol extends BD
 
     public function getRolID( $id ){
         try {
-            $queryReg = "SELECT id, 
+            $queryReg = "SELECT id_rol, 
                                 rol, 
                                 descripcion, 
                                 activo 
                            FROM ws_rol 
-                          WHERE id = ". $id." 
+                          WHERE id_rol = ". $id." 
                           LIMIT 1";
             $result   = $this->conn->prepare($queryReg);
             $result->execute();
@@ -241,7 +241,7 @@ class Rol extends BD
         $exec       = $this->conn->conexion();
         try{
             $queryUpdate ="UPDATE ws_rol SET activo = $tipo
-    				        WHERE id = '$id'";
+    				        WHERE id_rol = '$id'";
 
             $result = $this->conn->prepare($queryUpdate);
             $exec->beginTransaction();
@@ -259,7 +259,7 @@ class Rol extends BD
 
         try {
             $conn = new BD();
-            $queryMP = "SELECT id as id_menu,
+            $queryMP = "SELECT id_menu,
                                link,
                                texto,
                                class,
@@ -267,8 +267,7 @@ class Rol extends BD
                           FROM ws_menu m 
 		 			     WHERE m.id_grupo = $id_grupo  
                            AND m.activo = 1 
-                         ORDER BY id ASC ";
-            
+                         ORDER BY id_menu ASC ";
             $result = $conn->prepare($queryMP);
             $result->execute();
             return $result;
@@ -304,8 +303,8 @@ class Rol extends BD
 
     public function parentsMenu(){
         try {
-        $query= "SELECT id, id_grupo, texto, link  FROM ws_menu
-                  WHERE id_grupo = 0 ORDER BY id ASC";
+        $query= "SELECT id_menu, id_grupo, texto, link  FROM ws_menu
+                  WHERE id_grupo = 0 ORDER BY id_menu ASC";
             $result = $this->conn->prepare($query);
             $result->execute();
             return $result;
@@ -316,9 +315,9 @@ class Rol extends BD
 
     public function parentsMenuByRol(){
         try {
-        $query= "SELECT m.id, m.id_grupo, m.texto, m.link  
+        $query= "SELECT m.id_menu, m.id_grupo, m.texto, m.link  
                    FROM ws_menu as m
-                   INNER JOIN ws_rol_menu as rm ON m.id = rm.id_menu
+                   INNER JOIN ws_rol_menu as rm ON m.id_menu = rm.id_menu
                   WHERE m.id_grupo = 0 AND rm.id_rol = ".$this->get_id()." ORDER BY id ASC";
             $result = $this->conn->prepare($query);
             $result->execute();
@@ -330,8 +329,8 @@ class Rol extends BD
 
     public function childsMenu($id_menu){
         try {
-        $query= "SELECT id, id_grupo, texto, link  FROM ws_menu
-                WHERE id_grupo = $id_menu ORDER BY id ASC";
+        $query= "SELECT id_menu, id_grupo, texto, link  FROM ws_menu
+                WHERE id_grupo = $id_menu ORDER BY id_menu ASC";
             $result = $this->conn->prepare($query);
             $result->execute();
             return $result;
@@ -342,9 +341,9 @@ class Rol extends BD
 
     public function checarRol_menu(){
         try {
-            $queryCM ="SELECT id, imp, edit, nuevo, elim, exportar 
+            $queryCM ="SELECT id_menu, imp, edit, nuevo, elim, exportar 
                          FROM ws_rol_menu 
-                        WHERE id_menu='".$this->get_id_menu()."' AND id_rol='".$this->get_id()."'";
+                        WHERE id_menu ='".$this->get_id_menu()."' AND id_rol='".$this->get_id()."'";
             $result = $this->conn->prepare($queryCM);
             $result->execute();
             //echo $queryCM;
@@ -376,7 +375,7 @@ class Rol extends BD
             $queryUpdate = "UPDATE ws_rol 
                                SET rol = ?, 
                                    descripcion= ?
-                             WHERE id = ?";
+                             WHERE id_rol = ?";
             $result = $this->conn->prepare($queryUpdate);
             $exec->beginTransaction();
             $result->execute( $data );
@@ -442,7 +441,7 @@ class Rol extends BD
         $exec       = $this->conn->conexion();
         try{
             $queryUpdate ="UPDATE ws_rol SET activo = $tipo
-    				    WHERE id = ".$id;
+    				    WHERE id_rol = ".$id;
             $result = $this->conn->prepare($queryUpdate);
             $exec->beginTransaction();
             $result->execute();
@@ -457,7 +456,7 @@ class Rol extends BD
     public function deleteReg($id_delete){
         $correcto   = 2;
         try {
-            $delete     = "DELETE FROM ws_rol WHERE id = ".$id_delete;
+            $delete     = "DELETE FROM ws_rol WHERE id_rol = ".$id_delete;
 
             $result = $this->conn->prepare($delete);
             $result->execute();
@@ -472,7 +471,7 @@ class Rol extends BD
 
     public function foundRol(){
         try {
-            $queryCM ="SELECT rol FROM ws_rol WHERE rol='".$this->get_rol()."'";
+            $queryCM ="SELECT rol FROM ws_rol WHERE rol ='".$this->get_rol()."'";
             $result = $this->conn->prepare($queryCM);
             $result->execute();
             $rows = $result->rowCount();

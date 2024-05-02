@@ -12,13 +12,13 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 	$id_update			= $request->getParam('id_update');
 
 	$id_rol				= $request->getParam('id_rol');
+	$id_zona			= $request->getParam('id_zona');
 	$usuario			= $request->getParam('usuario');
 	$clave				= $request->getParam('clave');
+	$no_empleado    	= $request->getParam('no_empleado');
 	$nombre				= $request->getParam('nombre');
 	$apepa				= $request->getParam('apepa');
 	$apema				= $request->getParam('apema');
-	$correo				= $request->getParam('correo');
-	$sexo				= $request->getParam('sexo');
 	$admin				= $request->getParam('admin');
 	$menu				= $request->getParam('menu');
 
@@ -50,33 +50,35 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 		
 		if($usuario != "" &&
 		   is_numeric($id_rol) &&
-		   is_numeric($sexo) &&
+		   is_numeric($id_zona) &&
+		   is_numeric($no_empleado) &&
 		   $nombre != "" &&
 		   $apema != "" &&
 		   $apepa != ""){
+		
+			$msg = "Datos incompletos, validar datos de envío ".$admin;
+		}
 
 			$activo = 1;
-			$fecha 	= date('Y-m-d');
-			$img 	= ($sexo == 1) ? "avatar5.png" : "avatar2.png";
 			
 			if(!isset( $admin )){
 				$admin = 0;
 			}
 
+
 			$data = array(
 				$id_rol,
+				$id_zona,
 				$usuario,
+				$no_empleado,
 				$nombre,
 				$apepa,
 				$apema,
-				$correo,
-				$sexo,
-				$img,
 				$admin,
 				hash('sha256',$clave),
-				$activo,
-				$fecha
+				$activo
 			);
+
 
 			if(!is_numeric($id_update)){
 				throw new Exception ("El elemento id_update debe de ser numérico");
@@ -99,13 +101,12 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 				$id_reg    = $insert; 	
 
 			}else{
-				
-				array_pop( $data ); //sin fecha
 				array_pop( $data );	//sin activo
 				array_pop( $data ); //sin clave
 				
 				array_push($data, $id_update ); //con Id
 				
+
 				$insert    = $cAccion->updateReg( $data );
 				$strResp   = " actualizado ";
 				$id_reg    = $id_update; 
@@ -165,10 +166,6 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 			}else{
 				$msg.= " | Error: ".$insert;
 			}
-
-		}else{
-			$msg = "Datos incompletos, validar datos de envío ".$admin;
-		}
 
 		$resp = new mensaje();
 		$resp->done = $done;

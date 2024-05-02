@@ -21,18 +21,14 @@ class cUsers extends BD
                                  u.nombre, 
                                  u.admin,
                                  CONCAT_WS(' ', u.nombre, u.apepa, u.apema) AS nombrecompleto, 
-                                 u.correo,
-                                 u.sexo, 
-                                 u.img,                         
                                  r.rol
 					        FROM ws_usuario u
-					   LEFT JOIN ws_rol r ON r.id = u.id_rol
-					       WHERE usuario = :usuario 
+					   LEFT JOIN ws_rol r ON r.id_rol = u.id_rol
+					       WHERE usuario = '" . $user . "'
 					         AND clave = '" . $password . "'
                              AND u.activo = 1 LIMIT 1";
-                            
+            // echo $queryUser;
             $result = $this->conn->prepare($queryUser);
-            $result->bindParam(":usuario", $user, PDO::PARAM_STR);
             $result->execute();
             return $result;
         }
@@ -117,13 +113,12 @@ class cUsers extends BD
         try {
             $queryMP = "SELECT id_usuario, 
                                id_rol,
-                               usuario, 
-                               sexo, 
+                               id_zona,
+                               usuario,
+                               no_empleado, 
                                nombre, 
                                apepa, 
                                apema, 
-                               correo,                              
-                               img, 
                                admin, 
                                activo
                           FROM ws_usuario 
@@ -206,7 +201,7 @@ class cUsers extends BD
 
         try {
             $conn = new BD();
-            $queryMP = "SELECT id as id_menu,
+            $queryMP = "SELECT id_menu,
                                link,
                                texto,
                                class,
@@ -214,8 +209,8 @@ class cUsers extends BD
                           FROM ws_menu m 
 		 			     WHERE m.id_grupo = $id_grupo  
                            AND m.activo = 1 
-                         ORDER BY id ASC ";
-            
+                         ORDER BY id_menu ASC ";
+            // echo $queryMP;
             $result = $conn->prepare($queryMP);
             $result->execute();
             return $result;
@@ -230,7 +225,7 @@ class cUsers extends BD
 
         try {
             $conn = new BD();
-            $queryMP = "SELECT id as id_menu,
+            $queryMP = "SELECT id_menu,
                                link,
                                texto,
                                class,
@@ -238,10 +233,9 @@ class cUsers extends BD
                           FROM ws_menu m 
 		 			     WHERE m.id_grupo = $id_grupo  
                            AND m.activo = 1 
-                           AND id 
+                           AND id_menu 
                            IN ( SELECT id_menu FROM ws_usuario_menu WHERE id_usuario = $id_usuario)
                          ORDER BY m.orden ASC ";
-            
             $result = $conn->prepare($queryMP);
             $result->execute();
             return $result;
@@ -311,7 +305,7 @@ class cUsers extends BD
             $queryUser = "SELECT usuario 
                             FROM ws_usuario 
                            WHERE usuario='".$this->getUsuario()."' 
-                             AND id = '".$this->getIdUsuario()."'";
+                             AND id_usuario = '".$this->getIdUsuario()."'";
             //Ejecutando la consulta
             $result    = $this->conn->prepare($queryUser);
             $result->execute();
@@ -329,7 +323,6 @@ class cUsers extends BD
     {
         $limit      = "";
         $condition  = "";
-        
         if ($limite == 1){ $limit = " LIMIT ".$inicio.", ".$fin;}
         
         if (is_array($filtro)){
@@ -337,29 +330,25 @@ class cUsers extends BD
             if(isset($filtro['nombre']) && $filtro['nombre'] != ""){
                 $condition = " AND CONCAT_WS(' ', nombre, apepa, apema) LIKE '%".$filtro['nombre']."%' ";
             }
-            if(isset($filtro['correo']) && $filtro['correo'] != ""){
-                $condition = " AND u.correo LIKE '%".$filtro['correo']."%' ";
-            }
             if(isset($filtro['id_usuario']) && $filtro['id_usuario'] != ""){
                 $condition = " AND u.id_usuario  = '".$filtro['id_usuario']."' ";
             }
             if(isset($filtro['usuario']) && $filtro['usuario'] != ""){
                 $condition = " AND u.usuario LIKE '%".$filtro['usuario']."%' ";
             }
-
         }
 
         try {
             $queryUser = "SELECT u.id_usuario, 
+                                 u.id_zona,
+                                 u.no_empleado,   
                                  u.usuario, 
-                                 CONCAT_WS(' ', u.nombre, u.apepa, apema) AS nombre, 
-                                 u.correo, 
+                                 CONCAT_WS(' ', u.nombre, u.apepa, apema) AS nombre,
                                  u.activo, 
                                  u.admin
                             FROM ws_usuario as u
                            WHERE 1 $condition 
                            ORDER BY u.id_usuario DESC ".$limit;
-                        
             $result = $this->conn->prepare($queryUser);
             
             $result->execute();
@@ -398,20 +387,19 @@ class cUsers extends BD
         $exec = $this->conn->conexion();
         try {
             $queryMP = "INSERT INTO ws_usuario(
-                            id_rol, 
+                            id_rol,
+                            id_zona, 
                             usuario, 
+                            no_empleado,
                             nombre,
                             apepa, 
-                            apema, 
-                            correo, 
-                            sexo,
-                            img, 
+                            apema,
                             admin, 
                             clave, 
-                            activo,
-                            fecha_ingreso
+                            activo
                             )
                              VALUES (
+                            ?,
                             ?,
                             ?,
                             ?,
@@ -492,17 +480,15 @@ class cUsers extends BD
 
             $queryUpdate = "UPDATE ws_usuario
                                SET id_rol = ?, 
+                                   id_zona = ?, 
                                    usuario = ?, 
+                                   no_empleado = ?,
                                    nombre = ?, 
                                    apepa = ?,
                                    apema = ?, 
-                                   correo = ?,
-                                   sexo = ?,
-                                   img  = ?,
                                    admin = ? 
                              WHERE id_usuario = ?";
-            
-                         $result = $this->conn->prepare($queryUpdate);
+            $result = $this->conn->prepare($queryUpdate);
 
             $exec->beginTransaction();
 
@@ -519,13 +505,6 @@ class cUsers extends BD
     public function updateRegacount(){
         $correcto   = 1;
         $exec       = $this->conn->conexion();
-        $sexo       = $this->getSexo();
-
-        if($sexo == 1){
-            $img= "avatar5.png";
-        }else{
-            $img= "avatar2.png";
-        }
 
         try {
             $queryUpdate = "UPDATE ws_usuario
@@ -533,9 +512,7 @@ class cUsers extends BD
                                sexo = ?,
                                name = ?, 
                                apepa =?,
-                               apema =?, 
-                               email =?, 
-                               img = ?
+                               apema =?
                          WHERE id_usuario = ?";
             $result = $this->conn->prepare($queryUpdate);
 
@@ -543,12 +520,9 @@ class cUsers extends BD
 
             $array_val = array(
                 $this->getUsuario(),
-                $sexo,
                 $this->getNombre(),
                 $this->getApePa(),
                 $this->getApeMa(),
-                $this->getCorreo(),
-                $img,
                 $this->getIdUsuario()
             );
 

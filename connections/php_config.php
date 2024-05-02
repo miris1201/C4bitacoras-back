@@ -1,7 +1,7 @@
 <?php
 $proydes = "_siv3_local_rem";             //En caso de que sea producción cambiar este valor.
 
-define('c_page_title','TEMPLATE BE');            //Titulo del proyecto
+define('c_page_title','C4 Bitacoras');            //Titulo del proyecto
 define('c_num_reg',10);                                 //Número general de registros en páginas a ocupar
 
 //Sesiones Generales de Administración  ---

@@ -11,6 +11,7 @@ $app->post('/acceso',function(Request $request, Response $response){
 	$txtUser = $request->getParam('user');
 	$txtPass = $request->getParam('password');
 	$txtPass = hash('sha256',$txtPass);
+	// $txtPass = md5($txtPass);
 	
 	$cUsers	 =	new cUsers();
 
@@ -33,9 +34,10 @@ $app->post('/acceso',function(Request $request, Response $response){
 		$user_name    = null;
 		$token   = null;
 		$menu    = array();
-		
+
+
 		$selectUser = $cUsers->getUser($txtUser, $txtPass);
-		
+
 		if($selectUser->rowCount() > 0){
 
 			$data   = $selectUser->fetch(PDO::FETCH_OBJ);
