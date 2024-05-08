@@ -7,7 +7,7 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/admin/colonias/combo',function(Request $request, Response $response){
+$app->post('/catalogos/colonias/combo',function(Request $request, Response $response){
 
 
 	$id_zona  = $request->getParam('id_zona');

@@ -44,8 +44,8 @@ $app->post('/catalogos/colonias/insertupdate',function(Request $request, Respons
 		
 		if($nombre != "" &&
 		   $tipo != "" &&
-		   !is_numeric($sector) && $sector == 0 &&
-		   !is_numeric($region) && $region == 0){			
+		   !is_numeric($sector) || $sector == 0 &&
+		   !is_numeric($region) || $region == 0){			
 
 			$data = array(
 				$nombre,

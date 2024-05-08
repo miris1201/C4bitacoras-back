@@ -70,7 +70,10 @@ foreach ($datos as $key => $value) {
 		require_once('backend/catalogos/colonias/delete.php');
 	}  elseif ($value == $api_complemento . "/apis/catalogos/colonias/combo") {
 		require_once('backend/catalogos/colonias/combo.php');
-	} 
+	} elseif ($value == $api_complemento . "/apis/catalogos/colonias/comboTipo") {
+		require_once('backend/catalogos/colonias/comboTipo.php');
+	}  
+
 }
 
 $app->run();

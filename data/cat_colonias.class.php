@@ -22,7 +22,7 @@ class cCat_colonias extends BD
                                sector, 
                                region,
                                activo
-                          FROM cat_colonia 
+                          FROM cat_colonias 
                          WHERE id_colonia = ".$id ." 
                          LIMIT 1";
                          
@@ -45,11 +45,8 @@ class cCat_colonias extends BD
         
         if (is_array($filtro)){
             
-            if(isset($filtro['id_colonia']) && $filtro['id_colonia'] != ""){
-                $condition = " AND id_colonia = '%".$filtro['id_colonia']."%' ";
-            }
             if(isset($filtro['nombre']) && $filtro['nombre'] != ""){
-                $condition = " AND nombre LIKE '%".$filtro['nombre']."%' ";
+                $condition = " WHERE nombre LIKE '%".$filtro['nombre']."%' ";
             }
             
         }
@@ -61,10 +58,10 @@ class cCat_colonias extends BD
                             sector, 
                             region,
                             activo
-                            FROM cat_colonia as u
-                           WHERE 1 $condition 
+                            FROM cat_colonias
+                             $condition 
                            ORDER BY id_colonia DESC ".$limit;
-                        
+                // echo $query;
             $result = $this->conn->prepare($query);
             
             $result->execute();
@@ -81,7 +78,7 @@ class cCat_colonias extends BD
         
         $exec = $this->conn->conexion();
         try {
-            $queryMP = "INSERT INTO cat_colonia(
+            $queryMP = "INSERT INTO cat_colonias(
                             nombre, 
                             tipo,
                             sector, 
@@ -117,7 +114,7 @@ class cCat_colonias extends BD
 
         try {
 
-            $queryUpdate = "UPDATE cat_colonia
+            $queryUpdate = "UPDATE cat_colonias
                                SET nombre = ?,
                                    tipo = ?,
                                    sector = ?,
@@ -142,7 +139,7 @@ class cCat_colonias extends BD
         $exec = $this->conn->conexion();
         
         try {
-            $queryMP = "UPDATE cat_colonia 
+            $queryMP = "UPDATE cat_colonias 
                            SET activo = ?
     				     WHERE id_colonia = ?";
             $result = $this->conn->prepare($queryMP);
@@ -163,7 +160,7 @@ class cCat_colonias extends BD
     public function deleteReg( $id ){
         $correcto   = 2;
         try {
-            $queryMP = "DELETE FROM cat_colonia 
+            $queryMP = "DELETE FROM cat_colonias 
                               WHERE id_colonia = ".$id;
             $result = $this->conn->prepare($queryMP);
             $result->execute();
@@ -181,10 +178,25 @@ class cCat_colonias extends BD
         try {
             $query = "SELECT id_colonia, 
                              CONCAT_WS(' - ', tipo, colonia) AS colonias,
-                        FROM cat_colonia 
+                        FROM cat_colonias 
                        WHERE activo = 1
                          AND id_zona = ". $id_zona ."
                        ORDER BY id_colonia ASC";
+
+            $result = $this->conn->prepare($query);
+            $result->execute();
+            return $result;
+
+        }catch (\PDOException $e){
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
+    public function getCatTipo( ){
+        try {
+            $query = "SELECT tipo
+                        FROM cat_colonias 
+                       GROUP BY tipo ";
 
             $result = $this->conn->prepare($query);
             $result->execute();
