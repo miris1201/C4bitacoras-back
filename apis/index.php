@@ -59,16 +59,18 @@ foreach ($datos as $key => $value) {
 		require_once('backend/admin/rol/delete.php');
 	}
 	//Catálogos
-	//Operadores
-	elseif ($value == $api_complemento . "/apis/catalogos/operadores/list") {
-		require_once('backend/catalogos/operadores/list.php');
-	} elseif ($value == $api_complemento . "/apis/catalogos/operadores/show") {
-		require_once('backend/catalogos/operadores/show.php');
-	} elseif ($value == $api_complemento . "/apis/catalogos/operadores/insertupdate") {
-		require_once('backend/catalogos/operadores/insertupdate.php');
-	} elseif ($value == $api_complemento . "/apis/catalogos/operadores/delete") {
-		require_once('backend/catalogos/operadores/delete.php');
-	}
+	//Colonias
+	elseif ($value == $api_complemento . "/apis/catalogos/colonias/list") {
+		require_once('backend/catalogos/colonias/list.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/colonias/show") {
+		require_once('backend/catalogos/colonias/show.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/colonias/insertupdate") {
+		require_once('backend/catalogos/colonias/insertupdate.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/colonias/delete") {
+		require_once('backend/catalogos/colonias/delete.php');
+	}  elseif ($value == $api_complemento . "/apis/catalogos/colonias/combo") {
+		require_once('backend/catalogos/colonias/combo.php');
+	} 
 }
 
 $app->run();
