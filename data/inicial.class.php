@@ -139,7 +139,7 @@ class cInicial extends BD
                                orden
                           FROM ws_menu m
                          WHERE m.id_grupo > 0  AND m.activo = 1 
-                           AND m.id_grupo= $parent
+                           AND m.id_grupo = $parent
                            AND m.id in (select id_menu from ws_usuario_menu WHERE id_usuario = ".$usr." )
                          ORDER BY orden ASC ";
                     //echo $queryMP;

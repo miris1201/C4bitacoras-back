@@ -74,6 +74,23 @@ foreach ($datos as $key => $value) {
 		require_once('backend/catalogos/colonias/comboTipo.php');
 	}  
 
+	//Cuadrantes
+	elseif ($value == $api_complemento . "/apis/catalogos/cuadrantes/list") {
+		require_once('backend/catalogos/cuadrantes/list.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/cuadrantes/show") {
+		require_once('backend/catalogos/cuadrantes/show.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/cuadrantes/insertupdate") {
+		require_once('backend/catalogos/cuadrantes/insertupdate.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/cuadrantes/delete") {
+		require_once('backend/catalogos/cuadrantes/delete.php');
+	}  elseif ($value == $api_complemento . "/apis/catalogos/cuadrantes/combo") {
+		require_once('backend/catalogos/cuadrantes/combo.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/cuadrantes/comboSector") {
+		require_once('backend/catalogos/cuadrantes/comboSector.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/cuadrantes/comboZona") {
+		require_once('backend/catalogos/cuadrantes/comboZona.php');
+	} 
+
 }
 
 $app->run();

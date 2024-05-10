@@ -1,23 +1,22 @@
 <?php
 $dir_fc = "../";
-include_once $dir_fc.'data/cat_colonias.class.php';	
+include_once $dir_fc.'data/cat_cuadrantes.class.php';	
 require_once $dir_fc."common/function.class.php";	
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/catalogos/colonias/insertupdate',function(Request $request, Response $response){
+$app->post('/catalogos/cuardantes/insertupdate',function(Request $request, Response $response){
 
 	$id_update 	= $request->getParam('id_update');
 
-	$nombre		= $request->getParam('nombre');
-	$tipo		= $request->getParam('tipo');
+	$id_zona    = $request->getParam('id_zona');
 	$sector		= $request->getParam('sector');
-	$region		= $request->getParam('region');
+	$cuadrante	= $request->getParam('cuadrante');
 	
 	$cFn 	 = new cFunction();
-	$cAccion = new cCat_colonias();
+	$cAccion = new cCat_cuadrantes();
 	
 	$headers = $request->getHeaders();
 	
@@ -42,20 +41,18 @@ $app->post('/catalogos/colonias/insertupdate',function(Request $request, Respons
 		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
 
 		
-		if($nombre != "" &&
-		   $tipo != "" &&
-		   !is_numeric($sector) &&
-		   !is_numeric($region)){
+		if( $cuadrante != "" &&
+		   !is_numeric($id_zona) &&
+		   !is_numeric($sector)){
 			throw new Exception ("Datos incompletos, validar datos de envío");
 
 		}
 
 
 			$data = array(
-				$nombre,
-				$tipo,
+				$id_zona,
 				$sector,
-				$region
+				$cuadrante
 			);
 
 			if(!is_numeric($id_update)){
@@ -64,14 +61,6 @@ $app->post('/catalogos/colonias/insertupdate',function(Request $request, Respons
 
 			if($id_update == 0){
 				
-				if( !is_numeric($sector) && $sector == 0){
-					throw new Exception ("Es necesario el sector");
-				}
-
-				if( !is_numeric($region) && $region == 0){
-					throw new Exception ("Es necesaria la región");
-				}
-
 				$insert    = $cAccion->insertReg( $data );
 				$strResp   = " insertado ";
 				$id_reg    = $insert; 	
