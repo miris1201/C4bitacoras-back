@@ -1,25 +1,23 @@
 <?php
 $dir_fc = "../";
-include_once $dir_fc.'data/cat_cuadrantes.class.php';	
+include_once $dir_fc.'data/cat_operativos.class.php';	
 require_once $dir_fc."common/function.class.php";	
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/catalogos/cuadrantes/insertupdate',function(Request $request, Response $response){
+$app->post('/catalogos/colonias/insertupdate',function(Request $request, Response $response){
 
-	$id_update 	= $request->getParam('id_update');
+	$id_update 	 = $request->getParam('id_update');
 
-	$id_zona    = $request->getParam('id_zona');
-	$sector		= $request->getParam('sector');
-	$cuadrante	= $request->getParam('cuadrante');
+	$descripcion = $request->getParam('descripcion');
 	
 	$cFn 	 = new cFunction();
-	$cAccion = new cCat_cuadrantes();
+	$cAccion = new cCat_operativos();
 	
 	$headers = $request->getHeaders();
-
+	
 	class mensaje {
 		public $done;
 		public $msg;
@@ -41,26 +39,22 @@ $app->post('/catalogos/cuadrantes/insertupdate',function(Request $request, Respo
 		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
 
 		
-		if( $cuadrante != "" &&
-		   !is_numeric($id_zona) &&
-		   !is_numeric($sector)){
+		if($descripcion != "" ){
 			throw new Exception ("Datos incompletos, validar datos de envío");
 
 		}
 
 
 			$data = array(
-				$id_zona,
-				$sector,
-				$cuadrante
+				$descripcion
 			);
 
 			if(!is_numeric($id_update)){
 				throw new Exception ("El elemento id_update debe de ser numérico");
 			}
 
-			if($id_update == 0){
-				
+			if($id_update == 0){			
+
 				$insert    = $cAccion->insertReg( $data );
 				$strResp   = " insertado ";
 				$id_reg    = $insert; 	

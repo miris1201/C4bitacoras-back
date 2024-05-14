@@ -2,7 +2,7 @@
 
 require_once $dir_fc."connections/conn_data.php";
 
-class cCat_cuadrantes extends BD
+class cCat_operativos extends BD
 {
     private $conn;
 
@@ -16,15 +16,11 @@ class cCat_cuadrantes extends BD
     
     public function getRegbyid( $id ){
         try {
-            $queryMP = "SELECT C.id_cuadrante,
-                               C.id_zona,                                
-                               C.sector, 
-                               C.cuadrante, 
-                               C.activo,
-                               Z.zona
-                          FROM cat_cuadrantes C
-                          LEFT JOIN cat_zona Z ON C.id_zona = Z.id_zona
-                         WHERE id_cuadrante = ".$id ." 
+            $queryMP = "SELECT id_operativo,
+                               descripcion,
+                               activo
+                          FROM cat_operativo 
+                         WHERE id_operativo = ".$id ." 
                          LIMIT 1";
                          
             $result = $this->conn->prepare($queryMP);
@@ -46,26 +42,19 @@ class cCat_cuadrantes extends BD
         
         if (is_array($filtro)){
             
-            if(isset($filtro['id_zona']) && $filtro['id_zona'] != ""){
-                $condition .= " AND C.id_zona = ".$filtro['id_zona']." ";
+            if(isset($filtro['descripcion']) && $filtro['descripcion'] != ""){
+                $condition = " WHERE descripcion LIKE '%".$filtro['descripcion']."%' ";
             }
-
-            if(isset($filtro['cuadrante']) && $filtro['cuadrante'] != ""){
-                $condition .= " AND cuadrante LIKE '%".$filtro['cuadrante']."%' ";
-            }
+            
         }
 
         try {
-            $query = "  SELECT id_cuadrante,
-                            C.id_zona, 
-                            sector,
-                            cuadrante,
-                            C.activo,
-                            Z.zona 
-                            FROM cat_cuadrantes C 
-                             LEFT JOIN cat_zona Z ON C.id_zona = Z.id_zona
-                            WHERE 1 $condition 
-                           ORDER BY C.id_zona ASC, id_cuadrante DESC ".$limit;
+            $query = "  SELECT id_operativo,
+                            descripcion,
+                            activo
+                            FROM cat_operativo
+                             $condition 
+                           ORDER BY id_operativo DESC ".$limit;
                 // echo $query;
             $result = $this->conn->prepare($query);
             
@@ -83,13 +72,9 @@ class cCat_cuadrantes extends BD
         
         $exec = $this->conn->conexion();
         try {
-            $queryMP = "INSERT INTO cat_cuadrantes(
-                            id_zona, 
-                            sector,
-                            cuadrante)
+            $queryMP = "INSERT INTO cat_operativo(
+                            descripcion )
                              VALUES (
-                            ?,
-                            ?,
                             ?)";
 
             $result = $this->conn->prepare($queryMP);
@@ -117,13 +102,11 @@ class cCat_cuadrantes extends BD
 
         try {
 
-            $queryUpdate = "UPDATE cat_cuadrantes
-                               SET id_zona = ?,
-                                   sector = ?,
-                                   cuadrante = ?
-                             WHERE id_cuadrante = ?";
+            $queryUpdate = "UPDATE cat_operativo
+                               SET descripcion = ?
+                             WHERE id_operativo = ?";
             
-                         $result = $this->conn->prepare($queryUpdate);
+            $result = $this->conn->prepare($queryUpdate);
 
             $exec->beginTransaction();
             $result->execute($data);
@@ -141,9 +124,9 @@ class cCat_cuadrantes extends BD
         $exec = $this->conn->conexion();
         
         try {
-            $queryMP = "UPDATE cat_cuadrantes 
+            $queryMP = "UPDATE cat_operativo 
                            SET activo = ?
-    				     WHERE id_cuadrante = ?";
+    				     WHERE id_operativo = ?";
             $result = $this->conn->prepare($queryMP);
 
             $exec->beginTransaction();
@@ -162,8 +145,8 @@ class cCat_cuadrantes extends BD
     public function deleteReg( $id ){
         $correcto   = 2;
         try {
-            $queryMP = "DELETE FROM cat_cuadrantes 
-                              WHERE id_cuadrante = ".$id;
+            $queryMP = "DELETE FROM cat_operativo 
+                              WHERE id_operativo = ".$id;
             $result = $this->conn->prepare($queryMP);
             $result->execute();
 
@@ -176,14 +159,13 @@ class cCat_cuadrantes extends BD
     }
     
 
-    public function getCatCuadrante( $sector ){
+    public function getCatOperativo(){
         try {
-            $query = "SELECT id_cuadrante, 
-                             cuadrante,
-                        FROM cat_cuadrantes 
+            $query = "SELECT id_operativo, 
+                             descripcion
+                        FROM cat_operativo 
                        WHERE activo = 1
-                         AND sector = ". $sector ."
-                       ORDER BY id_cuadrante ASC";
+                       ORDER BY id_operativo ASC";
 
             $result = $this->conn->prepare($query);
             $result->execute();
@@ -194,35 +176,4 @@ class cCat_cuadrantes extends BD
         }
     }
 
-    public function getCatSector( $sector ){
-        try {
-            $query = "SELECT sector
-                        FROM cat_cuadrantes 
-                        WHERE activo = 1
-                         AND id_zona = ". $sector ."
-                       GROUP BY sector ";
-
-            $result = $this->conn->prepare($query);
-            $result->execute();
-            return $result;
-
-        }catch (\PDOException $e){
-            return "Error!: " . $e->getMessage();
-        }
-    }
-   
-    public function getCatZona(){
-        try {
-            $query = "SELECT id_zona, zona
-                        FROM cat_zona 
-                        WHERE activo = 1";
-
-            $result = $this->conn->prepare($query);
-            $result->execute();
-            return $result;
-
-        }catch (\PDOException $e){
-            return "Error!: " . $e->getMessage();
-        }
-    }
 }

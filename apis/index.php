@@ -91,6 +91,19 @@ foreach ($datos as $key => $value) {
 		require_once('backend/catalogos/cuadrantes/comboZona.php');
 	} 
 
+	//Operativos
+	elseif ($value == $api_complemento . "/apis/catalogos/operativo/list") {
+		require_once('backend/catalogos/operativo/list.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/operativo/show") {
+		require_once('backend/catalogos/operativo/show.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/operativo/insertupdate") {
+		require_once('backend/catalogos/operativo/insertupdate.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/operativo/delete") {
+		require_once('backend/catalogos/operativo/delete.php');
+	}  elseif ($value == $api_complemento . "/apis/catalogos/operativo/combo") {
+		require_once('backend/catalogos/operativo/combo.php');
+	} 
+
 }
 
 $app->run();
