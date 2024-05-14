@@ -22,6 +22,7 @@ $app->post('/acceso',function(Request $request, Response $response){
 		public $uid;
 		public $token;
 		public $menu;
+		public $systemOptions;
 	}
 	
 	try{
@@ -43,9 +44,14 @@ $app->post('/acceso',function(Request $request, Response $response){
 			$data   = $selectUser->fetch(PDO::FETCH_OBJ);
 
 			$uid	 = $data->id_usuario;
-			$name    = utf8_encode($data->nombrecompleto);
 			$name    = utf8_encode($data->usuario);
-			$id_rol    = $data->id_rol;
+			$id_rol    = $data->id_rol; 
+
+			$systemOptions = array(
+				"nombre_completo"=> $data->nombrecompleto,
+				"id_rol"=> $data->id_rol,
+				//"sexo" => $data->prop,
+			);		
 
 			$issuedat_claim = time(); // issued at
 			$expire_claim = $issuedat_claim + 17000; // expire time in seconds
@@ -147,6 +153,7 @@ $app->post('/acceso',function(Request $request, Response $response){
 		$resp->uid    	 = $uid;
 		$resp->token     = $token;
 		$resp->menu      = $menu;
+		$resp->systemOptions = $systemOptions;
 		
 		return $response->withJson($resp,200);
 
