@@ -104,6 +104,71 @@ foreach ($datos as $key => $value) {
 		require_once('backend/catalogos/operativo/combo.php');
 	} 
 
+	//Procedencia de llamadas
+	elseif ($value == $api_complemento . "/apis/catalogos/procedencia/list") {
+		require_once('backend/catalogos/procedencia/list.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/procedencia/show") {
+		require_once('backend/catalogos/procedencia/show.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/procedencia/insertupdate") {
+		require_once('backend/catalogos/procedencia/insertupdate.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/procedencia/delete") {
+		require_once('backend/catalogos/procedencia/delete.php');
+	}  elseif ($value == $api_complemento . "/apis/catalogos/procedencia/combo") {
+		require_once('backend/catalogos/procedencia/combo.php');
+	} 
+
+	//Tipo de emergencia
+	elseif ($value == $api_complemento . "/apis/catalogos/tipo_emergencia/list") {
+		require_once('backend/catalogos/tipo_emergencia/list.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/tipo_emergencia/show") {
+		require_once('backend/catalogos/tipo_emergencia/show.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/tipo_emergencia/insertupdate") {
+		require_once('backend/catalogos/tipo_emergencia/insertupdate.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/tipo_emergencia/delete") {
+		require_once('backend/catalogos/tipo_emergencia/delete.php');
+	}  elseif ($value == $api_complemento . "/apis/catalogos/tipo_emergencia/combo") {
+		require_once('backend/catalogos/tipo_emergencia/combo.php');
+	} 
+
+	//Tipo cierre de emergencia
+	elseif ($value == $api_complemento . "/apis/catalogos/tipo_cierre/list") {
+		require_once('backend/catalogos/tipo_cierre/list.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/tipo_cierre/show") {
+		require_once('backend/catalogos/tipo_cierre/show.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/tipo_cierre/insertupdate") {
+		require_once('backend/catalogos/tipo_cierre/insertupdate.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/tipo_cierre/delete") {
+		require_once('backend/catalogos/tipo_cierre/delete.php');
+	}  elseif ($value == $api_complemento . "/apis/catalogos/tipo_cierre/combo") {
+		require_once('backend/catalogos/tipo_cierre/combo.php');
+	} 
+
+	//Departamentos
+	elseif ($value == $api_complemento . "/apis/catalogos/departamentos/list") {
+		require_once('backend/catalogos/departamentos/list.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/departamentos/show") {
+		require_once('backend/catalogos/departamentos/show.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/departamentos/insertupdate") {
+		require_once('backend/catalogos/departamentos/insertupdate.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/departamentos/delete") {
+		require_once('backend/catalogos/departamentos/delete.php');
+	}  elseif ($value == $api_complemento . "/apis/catalogos/departamentos/combo") {
+		require_once('backend/catalogos/departamentos/combo.php');
+	} 
+
+	//Emergencias
+	elseif ($value == $api_complemento . "/apis/catalogos/emergencias/list") {
+		require_once('backend/catalogos/emergencias/list.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/emergencias/show") {
+		require_once('backend/catalogos/emergencias/show.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/emergencias/insertupdate") {
+		require_once('backend/catalogos/emergencias/insertupdate.php');
+	} elseif ($value == $api_complemento . "/apis/catalogos/emergencias/delete") {
+		require_once('backend/catalogos/emergencias/delete.php');
+	}  elseif ($value == $api_complemento . "/apis/catalogos/emergencias/combo") {
+		require_once('backend/catalogos/emergencias/combo.php');
+	} 
+
 }
 
 $app->run();

@@ -2,7 +2,7 @@
 
 require_once $dir_fc."connections/conn_data.php";
 
-class cMarcas extends BD
+class cCat_procedencia extends BD
 {
     private $conn;
 
@@ -16,13 +16,11 @@ class cMarcas extends BD
     
     public function getRegbyid( $id ){
         try {
-            $queryMP = "SELECT 
-                            id,
-                            nombre, 
-                            created_at,
-                            updated_at
-                          FROM marca 
-                         WHERE id=".$id ." 
+            $queryMP = "SELECT id_procedencia,
+                               descripcion,
+                               activo
+                          FROM cat_procedencia 
+                         WHERE id_procedencia = ".$id ." 
                          LIMIT 1";
                          
             $result = $this->conn->prepare($queryMP);
@@ -44,28 +42,21 @@ class cMarcas extends BD
         
         if (is_array($filtro)){
             
-            if(isset($filtro['id']) && $filtro['id'] != ""){
-                $condition = " AND id = '".$filtro['id'] ."' ";
+            if(isset($filtro['descripcion']) && $filtro['descripcion'] != ""){
+                $condition = " WHERE descripcion LIKE '%".$filtro['descripcion']."%' ";
             }
-            if(isset($filtro['nombre']) && $filtro['nombre'] != ""){
-                $condition = " AND nombre LIKE '%".$filtro['nombre']."%' ";
-            }
-           
             
         }
 
         try {
-            $queryUser = "SELECT 
-                            id,
-                            nombre, 
-                            created_at,
-                            updated_at,
-                            deleted_at
-                            FROM marca as u
-                           WHERE 1 $condition 
-                           ORDER BY id DESC ".$limit;
-                        
-            $result = $this->conn->prepare($queryUser);
+            $query = "  SELECT id_procedencia,
+                            descripcion,
+                            activo
+                            FROM cat_procedencia
+                             $condition 
+                           ORDER BY id_procedencia DESC ".$limit;
+                // echo $query;
+            $result = $this->conn->prepare($query);
             
             $result->execute();
             return $result;
@@ -81,12 +72,9 @@ class cMarcas extends BD
         
         $exec = $this->conn->conexion();
         try {
-            $queryMP = "INSERT INTO marca(
-                            nombre, 
-                            created_at
-                            )
+            $queryMP = "INSERT INTO cat_procedencia(
+                            descripcion )
                              VALUES (
-                            ?,
                             ?)";
 
             $result = $this->conn->prepare($queryMP);
@@ -114,16 +102,13 @@ class cMarcas extends BD
 
         try {
 
-            $queryUpdate = "UPDATE marca
-                               SET 
-                                nombre = ?,
-                                updated_at = ?
-                             WHERE id = ?";
+            $queryUpdate = "UPDATE cat_procedencia
+                               SET descripcion = ?
+                             WHERE id_procedencia = ?";
             
-                         $result = $this->conn->prepare($queryUpdate);
+            $result = $this->conn->prepare($queryUpdate);
 
             $exec->beginTransaction();
-
             $result->execute($data);
 
             $exec->commit();
@@ -134,24 +119,19 @@ class cMarcas extends BD
         return $correcto;
     }
     
-    public function updateStatus( $tipo, $id_delete ){
+    public function updateStatus( $data ){
         $correcto   = 1;
         $exec = $this->conn->conexion();
         
         try {
-            $queryMP = "UPDATE marca 
+            $queryMP = "UPDATE cat_procedencia 
                            SET activo = ?
-    				     WHERE id = ?";
+    				     WHERE id_procedencia = ?";
             $result = $this->conn->prepare($queryMP);
 
             $exec->beginTransaction();
 
-            $array_val = array(
-                $tipo,
-                $id_delete
-            );
-
-            $result->execute($array_val);
+            $result->execute($data);
             $exec->commit();
 
             return $correcto;
@@ -162,11 +142,11 @@ class cMarcas extends BD
         }
     }
 
-    public function deleteReg( $id_user ){
+    public function deleteReg( $id ){
         $correcto   = 2;
         try {
-            $queryMP = "DELETE FROM marca 
-                              WHERE id = ".$id_user;
+            $queryMP = "DELETE FROM cat_procedencia 
+                              WHERE id_procedencia = ".$id;
             $result = $this->conn->prepare($queryMP);
             $result->execute();
 
@@ -178,4 +158,22 @@ class cMarcas extends BD
         }
     }
     
+
+    public function getCatProcedencia(){
+        try {
+            $query = "SELECT id_procedencia, 
+                             descripcion
+                        FROM cat_procedencia 
+                       WHERE activo = 1
+                       ORDER BY id_procedencia ASC";
+
+            $result = $this->conn->prepare($query);
+            $result->execute();
+            return $result;
+
+        }catch (\PDOException $e){
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
 }

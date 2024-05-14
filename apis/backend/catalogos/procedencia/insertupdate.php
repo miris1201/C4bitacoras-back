@@ -1,20 +1,20 @@
 <?php
 $dir_fc = "../";
-include_once $dir_fc.'data/cat_operativos.class.php';	
+include_once $dir_fc.'data/cat_procedencia.class.php';	
 require_once $dir_fc."common/function.class.php";	
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/catalogos/operativo/insertupdate',function(Request $request, Response $response){
+$app->post('/catalogos/procedencia/insertupdate',function(Request $request, Response $response){
 
 	$id_update 	 = $request->getParam('id_update');
 
 	$descripcion = $request->getParam('descripcion');
 	
 	$cFn 	 = new cFunction();
-	$cAccion = new cCat_operativos();
+	$cAccion = new cCat_procedencia();
 	
 	$headers = $request->getHeaders();
 	

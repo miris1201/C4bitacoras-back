@@ -1,20 +1,21 @@
 <?php
 $dir_fc = "../";
-include_once $dir_fc.'data/cat_operativos.class.php';	
+include_once $dir_fc.'data/cat_emergencias.class.php';	
 require_once $dir_fc."common/function.class.php";	
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/catalogos/operativo/insertupdate',function(Request $request, Response $response){
+$app->post('/catalogos/emergencias/insertupdate',function(Request $request, Response $response){
 
-	$id_update 	 = $request->getParam('id_update');
+	$id_update 	 	 = $request->getParam('id_update');
 
-	$descripcion = $request->getParam('descripcion');
+	$id_departamento = $request->getParam('id_departamento');
+	$descripcion     = $request->getParam('descripcion');
 	
 	$cFn 	 = new cFunction();
-	$cAccion = new cCat_operativos();
+	$cAccion = new cCat_emergencias();
 	
 	$headers = $request->getHeaders();
 	
@@ -39,13 +40,15 @@ $app->post('/catalogos/operativo/insertupdate',function(Request $request, Respon
 		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
 
 		
-		if($descripcion == "" ){
+		if($descripcion == "" &&
+			!is_numeric($id_departamento)){
 			throw new Exception ("Datos incompletos, validar datos de envío");
 
 		}
 
 
 			$data = array(
+				$id_departamento,
 				$descripcion
 			);
 

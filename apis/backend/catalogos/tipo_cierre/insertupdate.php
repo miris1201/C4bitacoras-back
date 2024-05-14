@@ -1,20 +1,20 @@
 <?php
 $dir_fc = "../";
-include_once $dir_fc.'data/cat_operativos.class.php';	
+include_once $dir_fc.'data/cat_tipo_cierre.class.php';	
 require_once $dir_fc."common/function.class.php";	
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/catalogos/operativo/insertupdate',function(Request $request, Response $response){
+$app->post('/catalogos/tipo_cierre/insertupdate',function(Request $request, Response $response){
 
 	$id_update 	 = $request->getParam('id_update');
 
 	$descripcion = $request->getParam('descripcion');
 	
 	$cFn 	 = new cFunction();
-	$cAccion = new cCat_operativos();
+	$cAccion = new cCat_t_cierre();
 	
 	$headers = $request->getHeaders();
 	
@@ -44,38 +44,37 @@ $app->post('/catalogos/operativo/insertupdate',function(Request $request, Respon
 
 		}
 
+		$data = array(
+			$descripcion
+		);
 
-			$data = array(
-				$descripcion
-			);
+		if(!is_numeric($id_update)){
+			throw new Exception ("El elemento id_update debe de ser numérico");
+		}
 
-			if(!is_numeric($id_update)){
-				throw new Exception ("El elemento id_update debe de ser numérico");
-			}
+		if($id_update == 0){			
 
-			if($id_update == 0){			
+			$insert    = $cAccion->insertReg( $data );
+			$strResp   = " insertado ";
+			$id_reg    = $insert; 	
 
-				$insert    = $cAccion->insertReg( $data );
-				$strResp   = " insertado ";
-				$id_reg    = $insert; 	
-
-			}else{
-				
-				array_push($data, $id_update ); //con Id
-				
-				$insert    = $cAccion->updateReg( $data );
-				$strResp   = " actualizado ";
-				$id_reg    = $id_update; 
-
-			}
+		}else{
 			
-			if(is_numeric($insert)){
-				$msg   = "Registro $strResp correctamente";
-				$done  = true;
-				
-			}else{
-				$msg.= " | Error: ".$insert;
-			}
+			array_push($data, $id_update ); //con Id
+			
+			$insert    = $cAccion->updateReg( $data );
+			$strResp   = " actualizado ";
+			$id_reg    = $id_update; 
+
+		}
+		
+		if(is_numeric($insert)){
+			$msg   = "Registro $strResp correctamente";
+			$done  = true;
+			
+		}else{
+			$msg.= " | Error: ".$insert;
+		}
 
 
 		$resp = new mensaje();
