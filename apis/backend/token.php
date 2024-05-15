@@ -21,7 +21,6 @@ $app->post('/token',function(Request $request, Response $response){
 		public $token;
 	}
 	
-	
 	try{
 
 		$done 	 = false;
@@ -62,12 +61,11 @@ $app->post('/token',function(Request $request, Response $response){
 
 			$uid	 = $data->id_usuario;
 			$name    = utf8_encode($data->usuario);
-			$id_rol    = $data->id_rol;
-
-			
+			$id_rol    = $data->id_rol;			
 			$systemOptions = array(
 				"nombre_completo"=> $data->nombrecompleto,
 				"id_rol"=> $data->id_rol,
+				"no_empleado" => $data->no_empleado,
 				"sexo" => $data->sexo,
 			);		
 

@@ -22,11 +22,12 @@ $app->post('/admin/user/updatepassword',function(Request $request, Response $res
 		public $msg;
 	}
 
-	$done = false;
-	$msg = "";
-
-	try{
 	
+	try{
+		
+		$done = false;
+		$msg = "";
+		
 		$token 	 = $cFn->getToken( $headers );
 	
 		if($token == ""){
@@ -43,7 +44,12 @@ $app->post('/admin/user/updatepassword',function(Request $request, Response $res
 			throw new Exception ("Las contraseñas no coinciden");
 		}
 
-		$update    = $cAccion->updateRegPW($id_usuario, $confirm_password);
+		$data = array( hash('sha256',$confirm_password),
+					  $id_usuario );
+
+
+
+		$update    = $cAccion->updateRegPW( $data );
 
 		if(!is_numeric( $update)){
 			throw new Exception("Ocurrió un inconveniente al realizar el cambio de password".$update);
@@ -55,6 +61,7 @@ $app->post('/admin/user/updatepassword',function(Request $request, Response $res
 			
 	}catch(Exception $e){
 		$resp = new mensaje();
+		$resp->done = $done;
 		$resp->msg 	= "Error: ". $e->getMessage();
 		
 	}	 

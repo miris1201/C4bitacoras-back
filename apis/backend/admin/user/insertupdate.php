@@ -48,128 +48,125 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 
 		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
 
-		
 		if($usuario != "" &&
-		   is_numeric($id_rol) &&
-		   is_numeric($id_zona) &&
-		   is_numeric($no_empleado) &&
-		   is_numeric($sexo) &&
+		   !is_numeric($id_rol) &&
+		   !is_numeric($id_zona) &&
+		   !is_numeric($no_empleado) &&
+		   !is_numeric($sexo) &&
 		   $nombre != "" &&
 		   $apema != "" &&
 		   $apepa != ""){
-		
-			$msg = "Datos incompletos, validar datos de envío ".$admin;
+			throw new Exception ("Datos incompletos, validar datos de envío ".$admin);
+
 		}
 
-			$activo = 1;
+		$activo = 1;
 			
-			if(!isset( $admin )){
-				$admin = 0;
-			}
+		if(!isset( $admin )){
+			$admin = 0;
+		}
+
+		$data = array(
+			$id_rol,
+			$id_zona,
+			$usuario,
+			$no_empleado,
+			$nombre,
+			$apepa,
+			$apema,
+			$sexo, 
+			$admin,
+			hash('sha256', $clave),
+			$activo
+		);
 
 
-			$data = array(
-				$id_rol,
-				$id_zona,
-				$usuario,
-				hash('sha256', $clave),
-				$no_empleado,
-				$nombre,
-				$apepa,
-				$apema,
-				$sexo, 
-				$admin,
-				$activo
-			);
-
-
-			if(!is_numeric($id_update)){
-				throw new Exception ("El elemento id_update debe de ser numérico");
-			}
+		if(!is_numeric($id_update)){
+			throw new Exception ("El elemento id_update debe de ser numérico");
+		}
 			
 			$makeHash  = false; 
 
-			if($id_update == 0){
-				
-				if($clave == ""){
-					throw new Exception ("La clave de usuario es requerida");
-				}
-
-				if($cAccion->getRegByUserName($usuario)){
-					throw new Exception ("El nombre de usuario ya se encuentra registrado");
-				}
-
-				$insert    = $cAccion->insertReg( $data );
-				$strResp   = " insertado ";
-				$id_reg    = $insert; 	
-
-			}else{
-				array_pop( $data );	//sin activo
-				array_pop( $data ); //sin clave
-				
-				array_push($data, $id_update ); //con Id
-				
-
-				$insert    = $cAccion->updateReg( $data );
-				$strResp   = " actualizado ";
-				$id_reg    = $id_update; 
-
-			}
+		if($id_update == 0){
 			
-			if(is_numeric($insert)){
-				$msg   = "Registro $strResp correctamente";
-				$done  = true;
+			if($clave == ""){
+				throw new Exception ("La clave de usuario es requerida");
+			}
 
-				//Actualizar - ingresar nuevos permisos 
-				if( is_array($menu)){
+			if($cAccion->getRegByUserName($usuario)){
+				throw new Exception ("El nombre de usuario ya se encuentra registrado");
+			}
 
-					//Borrar los anteriores
-					$cAccion->deleteRegUsMenu( $id_reg );
-					//Ingresar los nuevos
-					foreach ($menu as $key => $value) {
-										
-						if($value["isChecked"]){
+			$insert    = $cAccion->insertReg( $data );
+			$strResp   = " insertado ";
+			$id_reg    = $insert; 	
+
+		}else{
+			array_pop( $data );	//sin activo
+			array_pop( $data ); //sin clave
+			
+			array_push($data, $id_update ); //con Id
+			
+
+			$insert    = $cAccion->updateReg( $data );
+			$strResp   = " actualizado ";
+			$id_reg    = $id_update; 
+
+		}
+			
+		if(!is_numeric($insert)){
+			throw new Exception (" | Error: ".$insert);
+		}	
+
+		$msg   = "Registro $strResp correctamente";
+		$done  = true;
+
+		//Actualizar - ingresar nuevos permisos 
+		if( is_array($menu)){
+
+			//Borrar los anteriores
+			$cAccion->deleteRegUsMenu( $id_reg );
+			//Ingresar los nuevos
+			foreach ($menu as $key => $value) {
+								
+				if($value["isChecked"]){
+
+					$array_val = array(
+						$id_reg, 
+						$value["id_menu"], 
+						0, 
+						0, 
+						0, 
+						0,
+						0
+					);
+					//Cabecera
+					$cAccion->insertRegdtluser( $array_val );
+
+				}
+
+				if( is_array( $value["_children"] )){
+					foreach ($value["_children"] as $key => $valueChild) {
+						if( $valueChild["value"] == 1){
 
 							$array_val = array(
 								$id_reg, 
-								$value["id_menu"], 
-								0, 
-								0, 
-								0, 
-								0,
-								0
+								$valueChild["id_menu"], 
+								$valueChild["imp"], 
+								$valueChild["edit"], 
+								$valueChild["elim"], 
+								$valueChild["nuevo"], 
+								$valueChild["exportar"], 
 							);
-							//Cabecera
+							//Hijos
 							$cAccion->insertRegdtluser( $array_val );
 
 						}
-
-						if( is_array( $value["_children"] )){
-							foreach ($value["_children"] as $key => $valueChild) {
-								if( $valueChild["value"] == 1){
-
-									$array_val = array(
-										$id_reg, 
-										$valueChild["id_menu"], 
-										$valueChild["imp"], 
-										$valueChild["edit"], 
-										$valueChild["elim"], 
-										$valueChild["nuevo"], 
-										$valueChild["exportar"], 
-									);
-									//Hijos
-									$cAccion->insertRegdtluser( $array_val );
-
-								}
-							}
-						}
 					}
 				}
-				
-			}else{
-				$msg.= " | Error: ".$insert;
 			}
-
+		}
+				
 		$resp = new mensaje();
 		$resp->done = $done;
 		$resp->msg  = $msg;

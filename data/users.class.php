@@ -17,6 +17,7 @@ class cUsers extends BD
 
             $queryUser = "SELECT u.id_usuario, 
                                  u.id_rol, 
+                                 u.no_empleado,
                                  u.usuario, 
                                  u.nombre, 
                                  u.admin,
@@ -47,6 +48,7 @@ class cUsers extends BD
                             u.id_usuario,
                             u.id_rol, 
                             u.usuario, 
+                            u.no_empleado,
                             CONCAT_WS(' ', u.nombre, u.apepa, u.apema) AS nombrecompleto,
                             u.sexo
                            FROM ws_usuario u
@@ -592,7 +594,7 @@ class cUsers extends BD
         }
     }
 
-    public function updateRegPW( $id, $password ){
+    public function updateRegPW( $data ){
         $correcto   = 1;
         $exec = $this->conn->conexion();
 
@@ -604,13 +606,7 @@ class cUsers extends BD
             $result = $this->conn->prepare($queryMP);
 
             $exec->beginTransaction();
-
-            $array_val = array(
-                hash('sha256',$password),
-                $id
-            );
-
-            $result->execute($array_val);
+            $result->execute($data);
 
             $exec->commit();
         }
