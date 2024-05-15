@@ -21,7 +21,8 @@ class cUsers extends BD
                                  u.nombre, 
                                  u.admin,
                                  CONCAT_WS(' ', u.nombre, u.apepa, u.apema) AS nombrecompleto, 
-                                 r.rol
+                                 r.rol,
+                                 u.sexo
 					        FROM ws_usuario u
 					   LEFT JOIN ws_rol r ON r.id_rol = u.id_rol
 					       WHERE usuario = '" . $user . "'
@@ -46,7 +47,8 @@ class cUsers extends BD
                             u.id_usuario,
                             u.id_rol, 
                             u.usuario, 
-                            CONCAT_WS(' ', u.nombre, u.apepa, u.apema) AS nombrecompleto 
+                            CONCAT_WS(' ', u.nombre, u.apepa, u.apema) AS nombrecompleto,
+                            u.sexo
                            FROM ws_usuario u
 					      WHERE id_usuario = '$id'
                             AND u.activo = 1 LIMIT 1";
@@ -90,11 +92,8 @@ class cUsers extends BD
                                  id_rol, 
                                  usuario, 
                                  name as nombre,
-                                 CONCAT_WS(' ', name, apepa, apema) AS nombrecompleto, 
-                                 email as correo,
-                                 sexo, 
-                                 img, 
-                                 DATE_FORMAT( created_at,  '%d/%m/%Y' ) AS fecha_ingreso
+                                 CONCAT_WS(' ', name, apepa, apema) AS nombrecompleto,                                  
+                                 sexo                                 
 					        FROM ws_usuario 
                            where id='".$this->getIdUsuario()."' 
                              AND password='".$this->getClave()."'
@@ -119,6 +118,7 @@ class cUsers extends BD
                                nombre, 
                                apepa, 
                                apema, 
+                               sexo, 
                                admin, 
                                activo
                           FROM ws_usuario 
@@ -330,8 +330,8 @@ class cUsers extends BD
             if(isset($filtro['nombre']) && $filtro['nombre'] != ""){
                 $condition = " AND CONCAT_WS(' ', nombre, apepa, apema) LIKE '%".$filtro['nombre']."%' ";
             }
-            if(isset($filtro['id_usuario']) && $filtro['id_usuario'] != ""){
-                $condition = " AND u.id_usuario  = '".$filtro['id_usuario']."' ";
+            if(isset($filtro['no_empleado']) && $filtro['no_empleado'] != ""){
+                $condition = " AND u.no_empleado = ".$filtro['no_empleado']." ";
             }
             if(isset($filtro['usuario']) && $filtro['usuario'] != ""){
                 $condition = " AND u.usuario LIKE '%".$filtro['usuario']."%' ";
@@ -344,8 +344,9 @@ class cUsers extends BD
                                  u.no_empleado,   
                                  u.usuario, 
                                  CONCAT_WS(' ', u.nombre, u.apepa, apema) AS nombre,
-                                 u.activo, 
-                                 u.admin
+                                 u.sexo,
+                                 u.admin,
+                                 u.activo 
                             FROM ws_usuario as u
                            WHERE 1 $condition 
                            ORDER BY u.id_usuario DESC ".$limit;
@@ -396,6 +397,7 @@ class cUsers extends BD
                             apema,
                             admin, 
                             clave, 
+                            sexo, 
                             activo
                             )
                              VALUES (
@@ -405,6 +407,7 @@ class cUsers extends BD
                             ?,
                             ?,
                             ?,                                     
+                            ?,
                             ?,
                             ?,
                             ?,
@@ -486,6 +489,7 @@ class cUsers extends BD
                                    nombre = ?, 
                                    apepa = ?,
                                    apema = ?, 
+                                   sexo  = ?,
                                    admin = ? 
                              WHERE id_usuario = ?";
             $result = $this->conn->prepare($queryUpdate);

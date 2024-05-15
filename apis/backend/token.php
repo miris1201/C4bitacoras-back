@@ -32,6 +32,7 @@ $app->post('/token',function(Request $request, Response $response){
 		$user_name = null;
 		$token   = null;
 		$menu    = array();
+		$systemOptions = array();
 
 		try{
 
@@ -60,9 +61,16 @@ $app->post('/token',function(Request $request, Response $response){
 			$data   = $selectUser->fetch(PDO::FETCH_OBJ);
 
 			$uid	 = $data->id_usuario;
-			$name    = utf8_encode($data->nombrecompleto);
 			$name    = utf8_encode($data->usuario);
 			$id_rol    = $data->id_rol;
+
+			
+			$systemOptions = array(
+				"nombre_completo"=> $data->nombrecompleto,
+				"id_rol"=> $data->id_rol,
+				"sexo" => $data->sexo,
+			);		
+
 			
 			$done 	 = true;
 			$msg 	 = "Usuario con datos";
@@ -150,6 +158,8 @@ $app->post('/token',function(Request $request, Response $response){
 		$resp->uid    	 = $uid;
 		$resp->token     = $token;
 		$resp->menu      = $menu;	
+		$resp->systemOptions = $systemOptions;
+
 
 		return $response->withJson($resp,200);
 

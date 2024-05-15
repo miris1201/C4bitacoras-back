@@ -20,6 +20,7 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 	$apepa				= $request->getParam('apepa');
 	$apema				= $request->getParam('apema');
 	$admin				= $request->getParam('admin');
+	$sexo				= $request->getParam('sexo');
 	$menu				= $request->getParam('menu');
 
 	$cFn 	 = new cFunction();
@@ -52,6 +53,7 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 		   is_numeric($id_rol) &&
 		   is_numeric($id_zona) &&
 		   is_numeric($no_empleado) &&
+		   is_numeric($sexo) &&
 		   $nombre != "" &&
 		   $apema != "" &&
 		   $apepa != ""){
@@ -70,12 +72,13 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 				$id_rol,
 				$id_zona,
 				$usuario,
+				hash('sha256', $clave),
 				$no_empleado,
 				$nombre,
 				$apepa,
 				$apema,
+				$sexo, 
 				$admin,
-				hash('sha256',$clave),
 				$activo
 			);
 

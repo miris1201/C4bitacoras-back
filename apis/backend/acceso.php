@@ -40,108 +40,105 @@ $app->post('/acceso',function(Request $request, Response $response){
 		$selectUser = $cUsers->getUser($txtUser, $txtPass);
 
 		if($selectUser->rowCount() > 0){
-
-			$data   = $selectUser->fetch(PDO::FETCH_OBJ);
-
-			$uid	 = $data->id_usuario;
-			$name    = utf8_encode($data->usuario);
-			$id_rol    = $data->id_rol; 
-
-			$systemOptions = array(
-				"nombre_completo"=> $data->nombrecompleto,
-				"id_rol"=> $data->id_rol,
-				//"sexo" => $data->prop,
-			);		
-
-			$issuedat_claim = time(); // issued at
-			$expire_claim = $issuedat_claim + 17000; // expire time in seconds
-			
-			$token = array(
-				"iss" => _issuer_claim_,
-				"aud" => _audience_claim_,
-				"iat" => $issuedat_claim,
-				"exp" => $expire_claim,
-				"data" => array(
-					"id" => $data->id_usuario,
-				)
-			);
-
-			$token  = JWT::encode($token, _SECRET_JWT_);
-			
-			$done 	 = true;
-			$msg 	 = "Usuario con datos";
-
-			$listam  = $cUsers->menuGeneralByUsr(0, $uid);
-			
-			if($listam->rowCount()>0){
-
-				while ($rw = $listam->fetch(PDO::FETCH_OBJ)){	
-					$id_padre 	= $rw->id_menu; 
-					$value		= 0;
-					$rsValMain  = $cUsers->validateOnUsrMenu($uid, $id_padre);
-					
-					//Si el main lo tiene solo regresa el true correspondiente
-					if( $rsValMain->rowCount() > 0 ){
-						$value = 1;
-					}
-
-					$main = array(
-						"id_menu" => $rw->id_menu,
-						"texto" => $rw->texto,
-						"className" => $rw->class,
-					);
-
-					$child  	= array();
-		
-					$rsChild = $cUsers->menuGeneralByUsr( $id_padre, $uid );
-					
-					if($rsChild->rowCount()>0){
-						
-						while( $rwC = $rsChild->fetch(PDO::FETCH_OBJ) ){
-							$values   = array();
-							$id_menu  = $rwC->id_menu;
-							$rsValues = $cUsers->validateOnUsrMenu($uid, $id_menu);
-							
-							$childMerge = array(
-								"id_menu" => $id_menu,
-								"texto" => $rwC->texto,
-								"link" => $rwC->link,
-							);
-
-							$values = array(
-								"imp" => 0,
-								"edit" => 0,
-								"elim" => 0,
-								"nuevo" => 0,
-								"exportar" => 0,
-							);
-							
-							if($rsValues->rowCount() > 0 ){
-								while( $rwVal = $rsValues->fetch(PDO::FETCH_OBJ) ){
-									$values["imp"] = $rwVal->imp;
-									$values["edit"] = $rwVal->edit;
-									$values["elim"] = $rwVal->elim;
-									$values["nuevo"] = $rwVal->nuevo;
-									$values["exportar"] = $rwVal->exportar;
-								}
-							}
-
-							$child[] = array_merge($childMerge, $values);
-						}
-											
-						$main["_children"] = $child;
-						
-					}
-					$menu[] 	= $main;
-				}
-			
-			}
-
-		}else{
-
-			$msg 	 = "Usuario no válido";
+			throw new Exception("Usuario no válido");
 
 		}
+
+		$data   = $selectUser->fetch(PDO::FETCH_OBJ);
+
+		$uid	 = $data->id_usuario;
+		$name    = utf8_encode($data->usuario);
+		$id_rol    = $data->id_rol; 
+
+		$systemOptions = array(
+			"nombre_completo"=> $data->nombrecompleto,
+			"id_rol"=> $data->id_rol,
+			"sexo" => $data->sexo,
+		);		
+
+		$issuedat_claim = time(); // issued at
+		$expire_claim = $issuedat_claim + 17000; // expire time in seconds
+		
+		$token = array(
+			"iss" => _issuer_claim_,
+			"aud" => _audience_claim_,
+			"iat" => $issuedat_claim,
+			"exp" => $expire_claim,
+			"data" => array(
+				"id" => $data->id_usuario,
+			)
+		);
+
+		$token  = JWT::encode($token, _SECRET_JWT_);
+		
+		$done 	 = true;
+		$msg 	 = "Usuario con datos";
+
+		$listam  = $cUsers->menuGeneralByUsr(0, $uid);
+		
+		if($listam->rowCount() <= 0){
+			throw new Exception("No se encuentran datos del menú con el usuario seleccionado ");
+		}
+
+		while ($rw = $listam->fetch(PDO::FETCH_OBJ)){	
+			$id_padre 	= $rw->id_menu; 
+			$value		= 0;
+			$rsValMain  = $cUsers->validateOnUsrMenu($uid, $id_padre);
+			
+			//Si el main lo tiene solo regresa el true correspondiente
+			if( $rsValMain->rowCount() > 0 ){
+				$value = 1;
+			}
+
+			$main = array(
+				"id_menu" => $rw->id_menu,
+				"texto" => $rw->texto,
+				"className" => $rw->class,
+			);
+
+			$child  	= array();
+
+			$rsChild = $cUsers->menuGeneralByUsr( $id_padre, $uid );
+			
+			if($rsChild->rowCount()>0){
+				
+				while( $rwC = $rsChild->fetch(PDO::FETCH_OBJ) ){
+					$values   = array();
+					$id_menu  = $rwC->id_menu;
+					$rsValues = $cUsers->validateOnUsrMenu($uid, $id_menu);
+					
+					$childMerge = array(
+						"id_menu" => $id_menu,
+						"texto" => $rwC->texto,
+						"link" => $rwC->link,
+					);
+
+					$values = array(
+						"imp" => 0,
+						"edit" => 0,
+						"elim" => 0,
+						"nuevo" => 0,
+						"exportar" => 0,
+					);
+					
+					if($rsValues->rowCount() > 0 ){
+						while( $rwVal = $rsValues->fetch(PDO::FETCH_OBJ) ){
+							$values["imp"] = $rwVal->imp;
+							$values["edit"] = $rwVal->edit;
+							$values["elim"] = $rwVal->elim;
+							$values["nuevo"] = $rwVal->nuevo;
+							$values["exportar"] = $rwVal->exportar;
+						}
+					}
+
+					$child[] = array_merge($childMerge, $values);
+				}
+									
+				$main["_children"] = $child;
+				
+			}
+			$menu[] 	= $main;
+		}		
 			
 		$resp = new mensaje();
 
