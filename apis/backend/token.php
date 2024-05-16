@@ -64,6 +64,7 @@ $app->post('/token',function(Request $request, Response $response){
 			$id_rol    = $data->id_rol;			
 			$systemOptions = array(
 				"nombre_completo"=> $data->nombrecompleto,
+				"id_zona" => $data->id_zona,
 				"id_rol"=> $data->id_rol,
 				"no_empleado" => $data->no_empleado,
 				"sexo" => $data->sexo,

@@ -85,7 +85,7 @@ class cInicial extends BD
 
         try {
             $conn = new BD();
-            $queryMP = "SELECT id as id_menu,
+            $queryMP = "SELECT id_menu as id_menu,
                                link,
                                texto,
                                class,
@@ -93,8 +93,8 @@ class cInicial extends BD
                           FROM ws_menu m 
 		 			     WHERE m.id_grupo = $id_grupo  
                            AND m.activo = 1  
-                         ORDER BY id ASC ";
-            
+                         ORDER BY id_menu ASC ";
+            // echo $queryMP;
             $result = $conn->prepare($queryMP);
             $result->execute();
             return $result;
@@ -140,7 +140,7 @@ class cInicial extends BD
                           FROM ws_menu m
                          WHERE m.id_grupo > 0  AND m.activo = 1 
                            AND m.id_grupo = $parent
-                           AND m.id in (select id_menu from ws_usuario_menu WHERE id_usuario = ".$usr." )
+                           AND m.id_menu in (select id_menu from ws_usuario_menu WHERE id_usuario = ".$usr." )
                          ORDER BY orden ASC ";
                     //echo $queryMP;
             $result = $conn->prepare($queryMP);
@@ -154,7 +154,7 @@ class cInicial extends BD
     }
 
     public function traeidMenu($nombre_menu){
-        $queryMC = "SELECT id FROM ws_menu WHERE link = '$nombre_menu'";
+        $queryMC = "SELECT id_menu FROM ws_menu WHERE link = '$nombre_menu'";
         $oMC = $this->_DB->query($queryMC) or trigger_error($oMC = "Query Error: ".$this->_DB->error);
         return $oMC;
     }

@@ -17,6 +17,7 @@ class cUsers extends BD
 
             $queryUser = "SELECT u.id_usuario, 
                                  u.id_rol, 
+                                 U.id_zona,
                                  u.no_empleado,
                                  u.usuario, 
                                  u.nombre, 
@@ -47,6 +48,7 @@ class cUsers extends BD
             $queryUser = "SELECT 
                             u.id_usuario,
                             u.id_rol, 
+                            u.id_zona,
                             u.usuario, 
                             u.no_empleado,
                             CONCAT_WS(' ', u.nombre, u.apepa, u.apema) AS nombrecompleto,

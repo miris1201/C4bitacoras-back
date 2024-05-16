@@ -106,8 +106,7 @@ $app->post('/menu/listGeneric',function(Request $request, Response $response){
 		$resp = new mensaje();
 		$resp->done 	 = $done;
 		$resp->menu      = $rows;
-		$resp->mensaje   = $mensaje;
-		
+		$resp->mensaje   = $mensaje;		
 
 		return $response->withJson($resp,200);
 		
