@@ -12,7 +12,7 @@ class cBitacoras extends BD
     }
 
 
-    public function getAllReg($limite, $inicio, $fin, $filtro, $id_departamento, $id_zona) {
+    public function getAllReg($limite, $inicio, $fin, $filtro) {
         $limit      = "";
         $condition  = "";
         $cond_depto  = "";
@@ -40,17 +40,17 @@ class cBitacoras extends BD
             
         }
 
-        if (isset($id_departamento) ) {            
-            $cond_depto = " AND id_departamento = ". $id_departamento."";
+        // if (isset($id_departamento) ) {            
+        //     $cond_depto = " AND id_departamento = ". $id_departamento."";
             
-        }
+        // }
 
-        if (!empty($id_zona)) {
-            if (is_array($id_zona)) {
-                $str = implode(",", $id_zona);
-                $estatus_filter = "  AND id_zona in ($str)";
-            }
-        }
+        // if (!empty($id_zona)) {
+        //     if (is_array($id_zona)) {
+        //         $str = implode(",", $id_zona);
+        //         $estatus_filter = "  AND id_zona in ($str)";
+        //     }
+        // }
 
         try {
             $query = "  SELECT id_bitacora,
@@ -69,7 +69,7 @@ class cBitacoras extends BD
                             LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
                             WHERE 1 $cond_depto $estatus_filter $condition
                            ORDER BY folio DESC ".$limit;
-                // echo $query;
+                echo $query;
             $result = $this->conn->prepare($query);
             
             $result->execute();
@@ -88,7 +88,7 @@ class cBitacoras extends BD
         $exec = $this->conn->conexion();
         try {
             $queryMP = "INSERT INTO tbl_bitacoras(
-                            folio, 
+                            folio,
                             fecha_captura,
                             id_usuario, 
                             id_zona, 

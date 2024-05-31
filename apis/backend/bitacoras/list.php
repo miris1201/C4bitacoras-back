@@ -17,7 +17,7 @@ $app->post('/bitacoras/list',function(Request $request, Response $response){
 	$cAccion =	new cBitacoras();
 	
 	$id_zona = $request->getParam('id_zona');
-	$id_rol  = $request->getParam('id_rol ');
+	$id_rol  = $request->getParam('id_rol');
 
 	$headers = $request->getHeaders();
 
@@ -38,11 +38,15 @@ $app->post('/bitacoras/list',function(Request $request, Response $response){
 		
 		JWT::decode($token, _SECRET_JWT_, array('HS256'));
 
-		$totalReg  = $cAccion->getAllReg( 0, $regIni, $regFin, $filtroB, $id_zona, $id_rol );
+		if( is_null($id_zona) || !isset($id_zona)){
+			throw new Exception(" Se tiene que enviar el perfil ");
+		}
+
+		$totalReg  = $cAccion->getAllReg( 0, $regIni, $regFin, $filtroB );
 
 		$limitReg = ( $isExport == 1 ) ? 0 : 1;
 
-		$lista     = $cAccion->getAllReg( $limitReg, $regIni, $regFin, $filtroB, $id_zona, $id_rol  );
+		$lista     = $cAccion->getAllReg( $limitReg, $regIni, $regFin, $filtroB  );
 		
 		$done 	   = false;
 		$rows	   = array();

@@ -169,6 +169,14 @@ foreach ($datos as $key => $value) {
 		require_once('backend/catalogos/emergencias/combo.php');
 	} 
 
+
+	//Lista de Bitacoras
+	elseif ($value == $api_complemento . "/apis/bitacoras/list") {
+		require_once('backend/bitacoras/list.php');
+	} elseif ($value == $api_complemento . "/apis/bitacoras/insertupdate") {
+		require_once('backend/bitacoras/insertupdate.php');
+	} 
+
 }
 
 $app->run();
