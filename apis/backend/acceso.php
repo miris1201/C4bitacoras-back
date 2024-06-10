@@ -42,7 +42,7 @@ $app->post('/acceso',function(Request $request, Response $response){
 			$selectUser = $cUsers->getUser($txtUser, $txtPass);
 
 			if($selectUser->rowCount() == 0){
-				throw new Exception("Usuario no válido");
+				throw new Exception("Usuario / contraseña incorrecto.");
 
 			}
 

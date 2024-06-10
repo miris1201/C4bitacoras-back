@@ -16,7 +16,7 @@ class cBitacoras extends BD
         $limit      = "";
         $condition  = "";
         $cond_depto  = "";
-        $estatus_filter = "";
+        $zona_filter = "";
         
         if ($limite == 1){ $limit = " LIMIT ".$inicio.", ".$fin;}
         
@@ -40,16 +40,13 @@ class cBitacoras extends BD
             
         }
 
-        // if (isset($id_departamento) ) {            
-        //     $cond_depto = " AND id_departamento = ". $id_departamento."";
-            
+        // if( is_array($filterDeptos) && count($filterDeptos) > 0 ){
+        //     $condition .= " AND B.id_departamento IN (". implode(', ', $filterDeptos).")";
         // }
 
-        // if (!empty($id_zona)) {
-        //     if (is_array($id_zona)) {
-        //         $str = implode(",", $id_zona);
-        //         $estatus_filter = "  AND id_zona in ($str)";
-        //     }
+        // if (isset($id_zona) ) {            
+        //     $zona_filter = " AND B.id_zona = ". $id_zona." ";
+            
         // }
 
         try {
@@ -57,7 +54,7 @@ class cBitacoras extends BD
                                 folio,
                                 B.id_usuario,
                                 B.id_zona,
-                                B.id_departamento
+                                B.id_departamento,
                                 unidad, 
                                 hora,
                                 fecha,
@@ -67,11 +64,10 @@ class cBitacoras extends BD
                             FROM tbl_bitacoras B
                             LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usuario
                             LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
-                            WHERE 1 $cond_depto $estatus_filter $condition
+                            WHERE 1 = 1 $zona_filter $condition
                            ORDER BY folio DESC ".$limit;
-                echo $query;
-            $result = $this->conn->prepare($query);
-            
+                // echo $query;
+            $result = $this->conn->prepare($query);            
             $result->execute();
             return $result;
         }
@@ -80,6 +76,38 @@ class cBitacoras extends BD
             return "Error!: " . $e->getMessage();
         }
     }
+
+    public function getNmUsuario() {
+    
+        $datos = array();
+        $query = "  SELECT id_usuario,
+                           CONCAT_WS(' ', nombre, apepa, apema) AS nombrecompleto
+                      FROM ws_usuario ";
+        $result = $this->conn->prepare($query);
+        $result->execute();
+        while ($rw = $result->fetch(PDO::FETCH_OBJ)) {
+            $datos[$rw->id_usuario] = $rw->nombrecompleto;
+        }
+        return $datos;
+    
+    }
+
+    public function getCatDepartamento() {
+    
+        $datos = array();
+        $query = "  SELECT id_departamento, departamento, abreviatura,
+                            CONCAT_WS(' - ', abreviatura , departamento) as depto
+                      FROM cat_departamento ";
+        $result = $this->conn->prepare($query);
+        $result->execute();
+        while ($rw = $result->fetch(PDO::FETCH_OBJ)) {
+            $datos[$rw->id_departamento] = $rw->depto;
+        }
+        return $datos;
+    
+    }
+
+
 
     
     public function insertReg( $data ){

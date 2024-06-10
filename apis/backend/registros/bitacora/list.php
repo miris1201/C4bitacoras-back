@@ -1,12 +1,14 @@
 <?php
 $dir_fc = "../";
-include_once $dir_fc.'data/bitacoras.class.php';	
+
+include_once $dir_fc.'data/bitacoras.class.php';
 require_once $dir_fc."common/function.class.php";	
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+use \Firebase\JWT\JWT;
 
-$app->post('/bitacoras/list',function(Request $request, Response $response){
+$app->post('/registros/bitacora/list',function(Request $request, Response $response){
 
 	$regIni  = $request->getParam('regIni');
 	$regFin  = $request->getParam('regFin');
@@ -14,11 +16,8 @@ $app->post('/bitacoras/list',function(Request $request, Response $response){
 	$isExport = $request->getParam('isExport');
 
 	$cFn 	 = new cFunction();
-	$cAccion =	new cBitacoras();
+	$cAccion = new cBitacoras();
 	
-	$id_zona = $request->getParam('id_zona');
-	$id_rol  = $request->getParam('id_rol');
-
 	$headers = $request->getHeaders();
 
 	class mensaje {
@@ -29,24 +28,20 @@ $app->post('/bitacoras/list',function(Request $request, Response $response){
 	}
    
 	try{
-		
+
 		$token 	 = $cFn->getToken( $headers );
 	
 		if($token == ""){
 			throw new Exception("No token available");
 		}
-		
-		JWT::decode($token, _SECRET_JWT_, array('HS256'));
 
-		if( is_null($id_zona) || !isset($id_zona)){
-			throw new Exception(" Se tiene que enviar el perfil ");
-		}
+		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
 
 		$totalReg  = $cAccion->getAllReg( 0, $regIni, $regFin, $filtroB );
 
 		$limitReg = ( $isExport == 1 ) ? 0 : 1;
 
-		$lista     = $cAccion->getAllReg( $limitReg, $regIni, $regFin, $filtroB  );
+		$lista     = $cAccion->getAllReg( $limitReg, $regIni, $regFin, $filtroB );
 		
 		$done 	   = false;
 		$rows	   = array();
@@ -73,10 +68,10 @@ $app->post('/bitacoras/list',function(Request $request, Response $response){
 
 		return $response->withJson($resp,200);
 		
-	}catch(PDOException $e){
+	}catch(Exception $e){
 		$resp = new mensaje();
-		$resp->respuesta= "error";
-		$resp->mensaje = $e->getMessage();
+		$resp->done		= false;
+		$resp->msg		= "error ".$e->getMessage();
 		return $response->withJson($resp,200);
-	}	   	   
+	}	      
 });

@@ -167,7 +167,7 @@ class cCat_departamento extends BD
     public function getCatDepartamento(){
         try {
             $query = "SELECT id_departamento, 
-                             departamento
+                             departamento, abreviatura, icon, activo
                         FROM cat_departamento 
                        WHERE activo = 1
                        ORDER BY id_departamento ASC";

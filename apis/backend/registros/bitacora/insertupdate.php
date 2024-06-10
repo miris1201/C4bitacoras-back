@@ -7,7 +7,7 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/bitacoras/insertupdate',function(Request $request, Response $response){
+$app->post('/registros/bitacora/insertupdate',function(Request $request, Response $response){
 
 	$id_update 	= $request->getParam('id_update');
 
