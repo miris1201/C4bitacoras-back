@@ -6,7 +6,9 @@ require 'vendor/autoload.php';
 $app = new \Slim\App;
 
 $config = [
-	'settings' => ['displayErrorDetails' => $showErrors]
+	'settings' => ['displayErrorDetails' => $showErrors, 
+					'addContentLengthHeader' => false,
+				  ]
 ];
 
 $app = new Slim\App($config);
@@ -170,7 +172,7 @@ foreach ($datos as $key => $value) {
 	} 
 
 	//Lista de Bitacoras
-	elseif($value == $api_complemento . "apis/registros/bitacora/list"){
+	elseif($value == $api_complemento . "/apis/registros/bitacora/list"){
 		require_once('backend/registros/bitacora/list.php');
 	} elseif ($value == $api_complemento . "/apis/registros/bitacora/insertupdate") {
 		require_once('backend/registros/bitacora/insertupdate.php');

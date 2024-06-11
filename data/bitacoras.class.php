@@ -11,13 +11,18 @@ class cBitacoras extends BD
         $this->conn = new BD();
     }
 
-
     public function getAllReg($limite, $inicio, $fin, $filtro) {
         $limit      = "";
         $condition  = "";
-        $cond_depto  = "";
+        $filterYear = "";
         $zona_filter = "";
-        
+        $actual = '2024-04-26';
+        // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
+        $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
+
+        $cond_depto  = " AND fecha between '$yesterday' and '$actual' ";
+
+
         if ($limite == 1){ $limit = " LIMIT ".$inicio.", ".$fin;}
         
         if (is_array($filtro)){
@@ -40,8 +45,8 @@ class cBitacoras extends BD
             
         }
 
-        // if( is_array($filterDeptos) && count($filterDeptos) > 0 ){
-        //     $condition .= " AND B.id_departamento IN (". implode(', ', $filterDeptos).")";
+        // if( is_array($filterDepto) && count($filterDepto) > 0 ){
+        //     $condition .= " AND B.id_departamento IN (". implode(', ', $filterDepto).")";
         // }
 
         // if (isset($id_zona) ) {            
@@ -57,16 +62,16 @@ class cBitacoras extends BD
                                 B.id_departamento,
                                 unidad, 
                                 hora,
-                                fecha,
+                                DATE_FORMAT(fecha, '%d-%m-%Y') AS fecha,
                                 detalle,
-                                CONCAT_WS(' ', U.nombre, U.apepa, U.apema) AS nombrecompleto, 
+                                CONCAT_WS(' ', U.nombre, U.apepa, U.apema) AS usuario, 
                                 D.departamento
                             FROM tbl_bitacoras B
                             LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usuario
                             LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
-                            WHERE 1 = 1 $zona_filter $condition
+                            WHERE 1 = 1 $cond_depto $zona_filter $condition
                            ORDER BY folio DESC ".$limit;
-                // echo $query;
+                // echo die ($query);
             $result = $this->conn->prepare($query);            
             $result->execute();
             return $result;

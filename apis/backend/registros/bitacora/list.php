@@ -14,6 +14,7 @@ $app->post('/registros/bitacora/list',function(Request $request, Response $respo
 	$regFin  = $request->getParam('regFin');
 	$filtroB = $request->getParam('filtroB');
 	$isExport = $request->getParam('isExport');
+	$filterDepto = $request->getParam('filterDepartamentos');
 
 	$cFn 	 = new cFunction();
 	$cAccion = new cBitacoras();
