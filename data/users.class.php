@@ -415,9 +415,6 @@ class cUsers extends BD
                             ?,
                             ?,
                             ?,
-                            ?,
-                            ?,
-                            ?,
                             ?)";
 
             $result = $this->conn->prepare($queryMP);

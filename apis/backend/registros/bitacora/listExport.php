@@ -8,15 +8,13 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/registros/bitacora/list',function(Request $request, Response $response){
+$app->post('/registros/bitacora/listExport',function(Request $request, Response $response){
 
 	$regIni  = $request->getParam('regIni');
 	$regFin  = $request->getParam('regFin');
 	$filtroB = $request->getParam('filtroB');
 	$isExport = $request->getParam('isExport');
 	$filtroD = $request->getParam('filtroD');
-	$id_zona = $request->getParam('id_zona');
-	$id_rol = $request->getParam('id_rol');
 
 	$cFn 	 = new cFunction();
 	$cAccion = new cBitacoras();
@@ -29,32 +27,27 @@ $app->post('/registros/bitacora/list',function(Request $request, Response $respo
 		public $rows;
 		public $count;
 	}
-   
-	try{
 
-		$token 	 = $cFn->getToken( $headers );
+
 	
+	try{
+		
+		$token 	 = $cFn->getToken( $headers );
+		
 		if($token == "") {
 			throw new Exception("No token available");
 		}
-
-		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
-
-
-		$totalReg  = $cAccion->getAllReg( 0, $regIni, $regFin, $filtroB, $filtroD, $id_rol, $id_zona );
-
-		$limitReg = ( $isExport == 1 ) ? 0 : 1;
-
-		$lista     = $cAccion->getAllReg( $limitReg, $regIni, $regFin, $filtroB, $filtroD, $id_rol, $id_zona );
+			
+			JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
+			
+			// var_dump($filtroB);
+		$lista     = $cAccion->getAllExport( $filtroB, $filtroD );
 		
 		$done 	   = false;
 		$rows	   = array();
 		$msg   	   = "noValido";
-		$count 	   = 0;
 
-		$count = $totalReg->rowCount();
-
-		if($count > 0){
+		if($lista->rowCount() > 0){
 
 			while ($rsRow = $lista->fetch(PDO::FETCH_ASSOC)){		
 				$rows[] = $rsRow;
@@ -68,7 +61,6 @@ $app->post('/registros/bitacora/list',function(Request $request, Response $respo
 		$resp->done 	= $done;
 		$resp->msg 		= $msg;
 		$resp->rows		= $rows;
-		$resp->count	= $count;
 
 		return $response->withJson($resp,200);
 		

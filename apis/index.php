@@ -176,9 +176,10 @@ foreach ($datos as $key => $value) {
 		require_once('backend/registros/bitacora/list.php');
 	} elseif ($value == $api_complemento . "/apis/registros/bitacora/insertupdate") {
 		require_once('backend/registros/bitacora/insertupdate.php');
-	} 
-		
-		// echo $value;
+	} elseif($value == $api_complemento . "/apis/registros/bitacora/listExport"){
+		require_once('backend/registros/bitacora/listExport.php');
+	}
+
 }
 
 $app->run();

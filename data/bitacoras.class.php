@@ -11,7 +11,9 @@ class cBitacoras extends BD
         $this->conn = new BD();
     }
 
-    public function getAllReg($limite, $inicio, $fin, $filtro) {
+    private $id_rol;
+
+    public function getAllReg($limite, $inicio, $fin, $filtro, $filtroD, $id_rol, $id_zona) {
         $limit      = "";
         $condition  = "";
         $filterYear = "";
@@ -20,7 +22,7 @@ class cBitacoras extends BD
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
 
-        $cond_depto  = " AND fecha between '$yesterday' and '$actual' ";
+        $cond_date  = " AND fecha between '$yesterday' and '$actual' ";
 
 
         if ($limite == 1){ $limit = " LIMIT ".$inicio.", ".$fin;}
@@ -31,28 +33,28 @@ class cBitacoras extends BD
                 $condition .= " AND folio = ".$filtro['folio']." ";
             }
 
-            if(isset($filtro['id_departamento']) && $filtro['id_departamento'] != ""){
-                $condition .= " AND id_departamento = ".$filtro['id_departamento']." ";
-            }
-
-            if(isset($filtro['fecha_inicial']) && $filtro['fecha_inicial'] != ""){
+            if(isset($filtro['fecha_final']) && $filtro['fecha_inicial'] != ""){
                 if(isset($filtro['fecha_final']) && $filtro['fecha_final'] != ""){
                     $condition .= " AND fecha BETWEEN '".$filtro['fecha_inicial']."' AND '".$filtro['fecha_final']."' ";
                 } else {
                     $condition .= " AND fecha = '".$filtro['fecha_inicial']."' ";
                 }
+                $cond_date = "";
             }
             
         }
 
-        // if( is_array($filterDepto) && count($filterDepto) > 0 ){
-        //     $condition .= " AND B.id_departamento IN (". implode(', ', $filterDepto).")";
-        // }
+        if( is_array($filtroD) && count($filtroD) > 0 ){
+            $condition .= " AND B.id_departamento IN (". implode(', ', $filtroD).")";
+        }
 
-        // if (isset($id_zona) ) {            
-        //     $zona_filter = " AND B.id_zona = ". $id_zona." ";
-            
-        // }
+        if ($id_rol > 1) {
+            if (isset($id_zona) ) {            
+                $zona_filter = " AND B.id_zona = ". $id_zona." ";
+                
+            }
+        }
+        
 
         try {
             $query = "  SELECT id_bitacora,
@@ -69,9 +71,60 @@ class cBitacoras extends BD
                             FROM tbl_bitacoras B
                             LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usuario
                             LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
-                            WHERE 1 = 1 $cond_depto $zona_filter $condition
+                            WHERE 1 = 1 $cond_date $zona_filter $condition
                            ORDER BY folio DESC ".$limit;
-                // echo die ($query);
+            $result = $this->conn->prepare($query);            
+            $result->execute();
+            return $result;
+        }
+        catch(\PDOException $e)
+        {
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
+    public function getAllExport($filtro, $filtroD) {
+        $condition  = "";
+        $actual = '2024-04-26';
+        // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
+        $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
+        $cond_date  = " AND fecha between '$yesterday' and '$actual' ";
+
+        if (is_array($filtro)){
+            
+            if(isset($filtro['folio']) && $filtro['folio'] != ""){
+                $condition .= " AND folio = ".$filtro['folio']." ";
+            }
+
+            if(isset($filtro['fecha_inicial']) && $filtro['fecha_inicial'] != ""){
+                $cond_date = "";
+                if(isset($filtro['fecha_final']) && $filtro['fecha_final'] != ""){
+                    $condition .= " AND fecha BETWEEN '".$filtro['fecha_inicial']."' AND '".$filtro['fecha_final']."' ";
+                } else {
+                    $condition .= " AND fecha = '".$filtro['fecha_inicial']."' ";
+                }
+            }
+            
+
+        }        
+
+        if( is_array($filtroD) && count($filtroD) > 0 ){
+            $condition .= " AND B.id_departamento IN (". implode(', ', $filtroD).")";
+        }
+
+        try {
+            $query = "  SELECT folio AS FOLIO,
+                                CONCAT_WS(' ', DATE_FORMAT(fecha, '%d-%m-%Y'), hora) AS FECHA, 
+                                CASE WHEN B.id_zona = 1 THEN 'PONIENTE' ELSE 'ORIENTE' END AS ZONA,
+                                D.departamento AS DEPARTAMENTO,
+                                CONCAT_WS(' ', U.nombre, U.apepa, U.apema) AS USUARIO,
+                                unidad AS UNIDAD, 
+                                detalle AS DETALLE
+                            FROM tbl_bitacoras B
+                            LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usuario
+                            LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
+                            WHERE 1 = 1 $cond_date $condition
+                           ORDER BY folio DESC ";
             $result = $this->conn->prepare($query);            
             $result->execute();
             return $result;

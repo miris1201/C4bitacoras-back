@@ -80,7 +80,7 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 			$activo
 		);
 
-
+		
 		if(!is_numeric($id_update)){
 			throw new Exception ("El elemento id_update debe de ser numérico");
 		}
