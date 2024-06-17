@@ -15,6 +15,8 @@ $app->post('/registros/bitacora/listExport',function(Request $request, Response 
 	$filtroB = $request->getParam('filtroB');
 	$isExport = $request->getParam('isExport');
 	$filtroD = $request->getParam('filtroD');
+	$id_zona = $request->getParam('id_zona');
+	$id_rol = $request->getParam('id_rol');
 
 	$cFn 	 = new cFunction();
 	$cAccion = new cBitacoras();
@@ -28,8 +30,6 @@ $app->post('/registros/bitacora/listExport',function(Request $request, Response 
 		public $count;
 	}
 
-
-	
 	try{
 		
 		$token 	 = $cFn->getToken( $headers );
@@ -38,10 +38,9 @@ $app->post('/registros/bitacora/listExport',function(Request $request, Response 
 			throw new Exception("No token available");
 		}
 			
-			JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
+		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
 			
-			// var_dump($filtroB);
-		$lista     = $cAccion->getAllExport( $filtroB, $filtroD );
+		$lista     = $cAccion->getAllExport( $filtroB, $filtroD, $id_rol, $id_zona );
 		
 		$done 	   = false;
 		$rows	   = array();

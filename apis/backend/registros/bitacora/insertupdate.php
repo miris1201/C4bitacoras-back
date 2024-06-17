@@ -13,7 +13,7 @@ $app->post('/registros/bitacora/insertupdate',function(Request $request, Respons
 
 	$folio			 = $request->getParam('folio');
 	$id_usuario		 = $request->getParam('id_usuario');
-	$id_zona		 = $request->getParam('id_zona');
+	$id_zona		 = $request->getParam('id_zona_b');
 	$id_departamento = $request->getParam('id_departamento');
 	$unidad			 = $request->getParam('unidad');
 	$fecha			 = $request->getParam('fecha');
@@ -54,47 +54,43 @@ $app->post('/registros/bitacora/insertupdate',function(Request $request, Respons
 
 		}
 
-			$fecha_cap = date("Y-m-d H:i:s");
+		$folio = $cAccion->getFolioMax();
+		$folioDuplicado = $cAccion->checkFolioDuplicado( $folio );
+		if ($folioDuplicado > 0 ) {
+			$folio = $cAccion->getFolioMax();
+		}
 
-			$data = array(
-				$folio,
-				$fecha_cap,
-				$id_usuario,
-				$id_zona,
-				$id_departamento,
-				$unidad,
-                $fecha,
-                $hora,
-                $detalle
-			);
+		$fecha_cap = date("Y-m-d H:i:s");
 
-			if(!is_numeric($id_update)){
-				throw new Exception ("El elemento id_update debe de ser numérico");
-			}
+		$data = array(
+			$folio,
+			$fecha_cap,
+			$id_usuario,
+			$id_zona,
+			$id_departamento,
+			$unidad,
+			$fecha,
+			$hora,
+			$detalle
+		);
 
-			if($id_update == 0){
-				
-				$insert    = $cAccion->insertReg( $data );
-				$strResp   = " insertado ";
-				$id_reg    = $insert; 	
-
-			}else{
-				
-				array_push($data, $id_update ); //con Id
-				
-				$insert    = $cAccion->updateReg( $data );
-				$strResp   = " actualizado ";
-				$id_reg    = $id_update; 
-
-			}
+		if(!is_numeric($id_update)){
+			throw new Exception ("El elemento id_update debe de ser numérico");
+		}
 			
-			if(is_numeric($insert)){
-				$msg   = "Registro $strResp correctamente";
-				$done  = true;
-				
-			}else{
-				$msg.= " | Error: ".$insert;
-			}
+		$insert    = $cAccion->insertReg( $data );
+		$strResp   = " insertado ";
+		$id_reg    = $insert; 	
+
+		
+		
+		if(is_numeric($insert)){
+			$msg   = "Registro $strResp correctamente";
+			$done  = true;
+			
+		}else{
+			$msg.= " | Error: ".$insert;
+		}
 
 
 		$resp = new mensaje();

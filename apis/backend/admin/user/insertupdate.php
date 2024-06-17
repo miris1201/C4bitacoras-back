@@ -62,7 +62,7 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 
 		$activo = 1;
 			
-		if(!isset( $admin )){
+		if($admin == ''){
 			$admin = 0;
 		}
 
@@ -79,7 +79,6 @@ $app->post('/admin/user/insertupdate',function(Request $request, Response $respo
 			hash('sha256', $clave),
 			$activo
 		);
-
 		
 		if(!is_numeric($id_update)){
 			throw new Exception ("El elemento id_update debe de ser numérico");

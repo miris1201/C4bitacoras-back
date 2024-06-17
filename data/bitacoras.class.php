@@ -16,12 +16,11 @@ class cBitacoras extends BD
     public function getAllReg($limite, $inicio, $fin, $filtro, $filtroD, $id_rol, $id_zona) {
         $limit      = "";
         $condition  = "";
-        $filterYear = "";
         $zona_filter = "";
-        $actual = '2024-04-26';
+        $depto_filter = "";
+        $actual = '2024-06-17';
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
-
         $cond_date  = " AND fecha between '$yesterday' and '$actual' ";
 
 
@@ -29,23 +28,27 @@ class cBitacoras extends BD
         
         if (is_array($filtro)){
             
+            
             if(isset($filtro['folio']) && $filtro['folio'] != ""){
                 $condition .= " AND folio = ".$filtro['folio']." ";
+                $cond_date = "";
             }
 
+            
             if(isset($filtro['fecha_final']) && $filtro['fecha_inicial'] != ""){
                 if(isset($filtro['fecha_final']) && $filtro['fecha_final'] != ""){
                     $condition .= " AND fecha BETWEEN '".$filtro['fecha_inicial']."' AND '".$filtro['fecha_final']."' ";
                 } else {
                     $condition .= " AND fecha = '".$filtro['fecha_inicial']."' ";
                 }
+
                 $cond_date = "";
             }
             
-        }
-
+        }        
+        
         if( is_array($filtroD) && count($filtroD) > 0 ){
-            $condition .= " AND B.id_departamento IN (". implode(', ', $filtroD).")";
+            $depto_filter = " AND B.id_departamento IN (". implode(', ', $filtroD).")";
         }
 
         if ($id_rol > 1) {
@@ -71,8 +74,9 @@ class cBitacoras extends BD
                             FROM tbl_bitacoras B
                             LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usuario
                             LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
-                            WHERE 1 = 1 $cond_date $zona_filter $condition
+                            WHERE 1 = 1 $depto_filter $cond_date $zona_filter $condition
                            ORDER BY folio DESC ".$limit;
+            // echo $query;
             $result = $this->conn->prepare($query);            
             $result->execute();
             return $result;
@@ -83,9 +87,11 @@ class cBitacoras extends BD
         }
     }
 
-    public function getAllExport($filtro, $filtroD) {
+    public function getAllExport($filtro, $filtroD, $id_rol, $id_zona) {
         $condition  = "";
-        $actual = '2024-04-26';
+        $zona_filter = "";
+        $depto_filter = "";
+        $actual = '2024-06-17';
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
         $cond_date  = " AND fecha between '$yesterday' and '$actual' ";
@@ -94,6 +100,7 @@ class cBitacoras extends BD
             
             if(isset($filtro['folio']) && $filtro['folio'] != ""){
                 $condition .= " AND folio = ".$filtro['folio']." ";
+                $cond_date = "";
             }
 
             if(isset($filtro['fecha_inicial']) && $filtro['fecha_inicial'] != ""){
@@ -104,12 +111,18 @@ class cBitacoras extends BD
                     $condition .= " AND fecha = '".$filtro['fecha_inicial']."' ";
                 }
             }
-            
 
         }        
 
         if( is_array($filtroD) && count($filtroD) > 0 ){
-            $condition .= " AND B.id_departamento IN (". implode(', ', $filtroD).")";
+            $depto_filter .= " AND B.id_departamento IN (". implode(', ', $filtroD).")";
+        }
+
+        if ($id_rol == 3) {
+            if (isset($id_zona) ) {            
+                $zona_filter = " AND B.id_zona = ". $id_zona." ";
+                
+            }
         }
 
         try {
@@ -123,8 +136,9 @@ class cBitacoras extends BD
                             FROM tbl_bitacoras B
                             LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usuario
                             LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
-                            WHERE 1 = 1 $cond_date $condition
+                            WHERE 1 = 1 $zona_filter $depto_filter $cond_date $condition
                            ORDER BY folio DESC ";
+
             $result = $this->conn->prepare($query);            
             $result->execute();
             return $result;
@@ -165,7 +179,29 @@ class cBitacoras extends BD
     
     }
 
+    public function getFolioMax(){
 
+        $query = "  SELECT MAX(folio) AS folio
+                      FROM tbl_bitacoras";
+        $result = $this->conn->prepare($query);
+        $result->execute();
+        while ($rw = $result->fetch(PDO::FETCH_OBJ)) {
+            $id = $rw->folio + 1;
+        }
+        return $id;
+    }
+
+    public function checkFolioDuplicado( $folio ){
+        $query = "  SELECT folio 
+                      FROM tbl_bitacoras
+                    WHERE folio = $folio ";       
+        // echo $query;               
+        $result = $this->conn->prepare($query);
+        $result->execute();
+        return $result->rowCount();
+
+
+    }
 
     
     public function insertReg( $data ){

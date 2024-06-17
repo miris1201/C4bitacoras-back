@@ -399,9 +399,9 @@ class cUsers extends BD
                             nombre,
                             apepa, 
                             apema,
+                            sexo, 
                             admin, 
                             clave, 
-                            sexo, 
                             activo
                             )
                              VALUES (
