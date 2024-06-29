@@ -174,13 +174,13 @@ class cCat_colonias extends BD
     }
     
 
-    public function getCatColonias( $id_zona ){
+    public function getCatColonias( ){
         try {
             $query = "SELECT id_colonia, 
-                             CONCAT_WS(' - ', tipo, colonia) AS colonias,
+                             CONCAT_WS(' - ', tipo, nombre) AS colonias,
+                             activo
                         FROM cat_colonias 
                        WHERE activo = 1
-                         AND id_zona = ". $id_zona ."
                        ORDER BY id_colonia ASC";
 
             $result = $this->conn->prepare($query);

@@ -162,7 +162,7 @@ class cCat_procedencia extends BD
     public function getCatProcedencia(){
         try {
             $query = "SELECT id_procedencia, 
-                             descripcion
+                             descripcion, activo
                         FROM cat_procedencia 
                        WHERE activo = 1
                        ORDER BY id_procedencia ASC";

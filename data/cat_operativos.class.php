@@ -162,7 +162,7 @@ class cCat_operativos extends BD
     public function getCatOperativo(){
         try {
             $query = "SELECT id_operativo, 
-                             descripcion
+                             descripcion, activo
                         FROM cat_operativo 
                        WHERE activo = 1
                        ORDER BY id_operativo ASC";

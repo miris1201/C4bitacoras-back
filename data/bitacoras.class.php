@@ -17,7 +17,7 @@ class cBitacoras extends BD
         $limit      = "";
         $condition  = "";
         $zona_filter = "";
-        $depto_filter = "";
+        $depto_filter = " AND E.id_departamento = 0 ";
         $actual = '2024-06-17';
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
@@ -248,31 +248,4 @@ class cBitacoras extends BD
             return "Error!: " . $e->getMessage();
         }
     }
-
-    public function updateReg( $data ){
-        $correcto   = 1;
-        $exec       = $this->conn->conexion();
-
-        try {
-
-            $queryUpdate = "UPDATE cat_colonias
-                               SET nombre = ?,
-                                   tipo = ?,
-                                   sector = ?,
-                                   region = ?
-                             WHERE id_colonia = ?";
-            
-                         $result = $this->conn->prepare($queryUpdate);
-
-            $exec->beginTransaction();
-            $result->execute($data);
-
-            $exec->commit();
-        }catch (\PDOException $e){
-            $exec->rollBack();
-            $correcto =  "Error!: " . $e->getMessage();
-        }
-        return $correcto;
-    }
-
 }

@@ -180,6 +180,19 @@ foreach ($datos as $key => $value) {
 		require_once('backend/registros/bitacora/listExport.php');
 	}
 
+
+	//Lista de Servicios
+	elseif($value == $api_complemento . "/apis/registros/servicios/list"){
+		require_once('backend/registros/servicios/list.php');
+	} elseif ($value == $api_complemento . "/apis/registros/servicios/insertupdate") {
+		require_once('backend/registros/servicios/insertupdate.php');
+	}  elseif($value == $api_complemento . "/apis/registros/servicios/show"){
+		require_once('backend/registros/servicios/show.php');
+	} elseif($value == $api_complemento . "/apis/registros/servicios/listExport"){
+		require_once('backend/registros/servicios/listExport.php');
+	} elseif ($value == $api_complemento . "/apis/registros/servicios/comboEstatus") {
+		require_once('backend/registros/servicios/comboEstatus.php');
+	} 
 }
 
 $app->run();

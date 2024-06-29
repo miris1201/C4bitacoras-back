@@ -176,10 +176,11 @@ class cCat_emergencias extends BD
         try {
             $query = "SELECT id_emergencia, 
                              descripcion,
-                             D.abreviatura
+                             D.abreviatura,
+                             concat_ws(' - ', D.abreviatura, descripcion) as emergencias
                         FROM cat_emergencia E
                         LEFT JOIN cat_departamento D ON E.id_departamento = D.id_departamento
-                       WHERE activo = 1
+                       WHERE E.activo = 1
                        ORDER BY descripcion ASC";
 
             $result = $this->conn->prepare($query);

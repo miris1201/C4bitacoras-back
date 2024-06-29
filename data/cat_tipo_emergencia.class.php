@@ -162,7 +162,7 @@ class cCat_t_emergencia extends BD
     public function getCatTipoEmergencia(){
         try {
             $query = "SELECT id_tipo_emergencia, 
-                             descripcion
+                             descripcion, activo
                         FROM cat_tipo_emergencia 
                        WHERE activo = 1
                        ORDER BY id_tipo_emergencia ASC";

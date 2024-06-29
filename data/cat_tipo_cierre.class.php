@@ -162,7 +162,8 @@ class cCat_t_cierre extends BD
     public function getCatTipoCierre(){
         try {
             $query = "SELECT id_tipo_cierre, 
-                             descripcion
+                             descripcion, 
+                             activo
                         FROM cat_tipo_cierre 
                        WHERE activo = 1
                        ORDER BY id_tipo_cierre ASC";
