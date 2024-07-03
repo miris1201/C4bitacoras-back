@@ -1,6 +1,6 @@
 <?php
 $dir_fc = "../";
-include_once $dir_fc.'data/bitacoras.class.php';	
+include_once $dir_fc.'data/servicios.class.php';	
 require_once $dir_fc."common/function.class.php";	
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
@@ -14,14 +14,30 @@ $app->post('/registros/servicios/insertupdate',function(Request $request, Respon
 	$folio			 = $request->getParam('folio');
 	$id_usuario		 = $request->getParam('id_usuario');
 	$id_zona		 = $request->getParam('id_zona_b');
-	$id_departamento = $request->getParam('id_departamento');
-	$unidad			 = $request->getParam('unidad');
 	$fecha			 = $request->getParam('fecha');
 	$hora			 = $request->getParam('hora');
-	$detalle 		 = $request->getParam('detalle');
+	$calle			 = $request->getParam('calle');
+	$calle1			 = $request->getParam('calle1');
+	$id_colonia		 = $request->getParam('id_colonia');
+	$nombre 	     = $request->getParam('nombre');
+	$telefono		 = $request->getParam('telefono');
+	$observaciones 	 = $request->getParam('observaciones');
+	$id_emergencia 	 = $request->getParam('id_emergencia');
+	$id_operativo 	 = $request->getParam('id_operativo');
+	$otros_operativos = $request->getParam('otros_operativos');
+	$id_llamada 	 = $request->getParam('id_llamada');
+	$id_turno    	 = $request->getParam('id_turno');
+	
+	
+	$placas    	 	 = $request->getParam('placas');
+	$modelo    	 	 = $request->getParam('modelo');
+	$marca    	 	 = $request->getParam('marca');
+	$subMarca    	 = $request->getParam('subMarca');
+	$color    		 = $request->getParam('color');
+	$serie    	 	 = $request->getParam('serie');
 	
 	$cFn 	 = new cFunction();
-	$cAccion = new cBitacoras();
+	$cAccion = new cServicios();
 	
 	$headers = $request->getHeaders();
 	
@@ -46,10 +62,18 @@ $app->post('/registros/servicios/insertupdate',function(Request $request, Respon
 		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
 
 		
-		if($detalle != "" &&
-		   $unidad != "" &&
+		if($nombre != "" &&
+		   $telefono != "" &&
+		   $observaciones != "" &&
+		   $calle != "" &&
+		   $calle1 != "" &&
 		   !is_numeric($id_zona) &&
-		   !is_numeric($id_departamento)){
+		   !is_numeric($id_turno) &&
+		   !is_numeric($id_emergencia) &&
+		   !is_numeric($id_llamada) &&
+		   !is_numeric($id_operativo) &&
+		   !is_numeric($id_colonia) 
+		   ){
 			throw new Exception ("Datos incompletos, validar datos de envío");
 
 		}
@@ -62,16 +86,42 @@ $app->post('/registros/servicios/insertupdate',function(Request $request, Respon
 
 		$fecha_cap = date("Y-m-d H:i:s");
 
+		if ($id_operativo == 16 
+			&& ($otros_operativos == "" 
+			|| $otros_operativos == null)) {
+			throw new Exception ("Especifica el tipo de operativo.");
+		}
+
+		if ($id_emergencia == 36 || $id_emergencia == 37 &&
+			($placas == null ||
+			$modelo == null ||
+			$marca == null ||
+			$subMarca == null ||
+			$color == null ||
+			$serie == null )
+			) {
+			throw new Exception ("Faltan los datos del vehiculo");
+		}
+
 		$data = array(
 			$folio,
 			$fecha_cap,
 			$id_usuario,
 			$id_zona,
-			$id_departamento,
-			$unidad,
+			1, 			
 			$fecha,
 			$hora,
-			$detalle
+			$calle,
+			$calle1,
+			$id_colonia,
+			$nombre,
+			$telefono,
+			$observaciones, 
+			$id_emergencia,
+			$id_operativo,
+			$otros_operativos,
+            $id_llamada,
+            $id_turno
 		);
 
 		if(!is_numeric($id_update)){
@@ -82,6 +132,20 @@ $app->post('/registros/servicios/insertupdate',function(Request $request, Respon
 		$strResp   = " insertado ";
 		$id_reg    = $insert; 	
 
+
+		if ($id_emergencia == 36 || $id_emergencia == 37) {
+			$dataV = array(
+				$id_reg,
+				$placas,
+				$modelo,
+				$marca,
+				$subMarca,
+				$color,
+				$serie
+			);
+
+			$insertV    = $cAccion->insertRegVehicular( $dataV );
+		}
 		
 		
 		if(is_numeric($insert)){

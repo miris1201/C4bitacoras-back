@@ -198,13 +198,17 @@ class cServicios extends BD
                                 S.id_llamada,
                                 S.id_operativo,
                                 O.descripcion as operativo,
-                                S.otros_operativos
+                                S.otros_operativos,
+                                S.id_cuadrante,
+                                CC.sector,
+                                CC.cuadrante
                             FROM tbl_servicios S
                             LEFT JOIN cat_estatus CS ON S.id_status = CS.id_estatus
                             LEFT JOIN cat_emergencia E ON S.id_emergencia = E.id_emergencia
                             LEFT JOIN cat_departamento D ON D.id_departamento = E.id_departamento
                             LEFT JOIN cat_colonias C ON S.id_colonia = C.id_colonia
                             LEFT JOIN cat_operativo O ON S.id_operativo = O.id_operativo
+                            LEFT JOIN cat_cuadrantes CC ON S.id_cuadrante = CC.id_cuadrante
                          WHERE id_servicio = ".$id ." 
                          LIMIT 1";
                 // echo $queryMP;
@@ -241,13 +245,17 @@ class cServicios extends BD
     public function getDataDtl( $id ){
         try {
             $query = "  SELECT  id_servicio_dtl, 
-                                id_servicio, 
-                                id_zona, 
+                                DTL.id_servicio, 
+                                DTL.id_zona, 
+                                DATE_FORMAT(DTL.fecha_captura, '%d-%m-%Y') AS fecha_captura_dtl,
+                                CONCAT_WS(' ', US.nombre, US.apepa, US.apema) AS usuario_dtl,
                                 resultado, 
                                 unidad, 
                                 hrecibe, 
                                 hasignacion, 
                                 harribo, 
+                                DATE_FORMAT(DTL.fecha_cierre, '%d-%m-%Y') AS fecha_cierre,
+                                CONCAT_WS(' ', WS.nombre, WS.apepa, WS.apema) AS usuario_cierre,
                                 DTL.id_emergencia_cierre, 
                                 E.descripcion AS emergencia_cierre, 
                                 DTL.id_tipo_cierre, 
@@ -258,8 +266,11 @@ class cServicios extends BD
                           LEFT JOIN cat_emergencia E ON DTL.id_emergencia_cierre = E.id_emergencia
                           LEFT JOIN cat_tipo_cierre TC ON DTL.id_tipo_cierre = TC.id_tipo_cierre
                           LEFT JOIN cat_tipo_emergencia TE ON DTL.id_tipo_emergencia = TE.id_tipo_emergencia
-                        WHERE id_servicio = ".$id ." 
+                          LEFT JOIN ws_usuario US ON US.id_usuario = DTL.id_usuario_dtl
+                          LEFT JOIN ws_usuario WS ON WS.id_usuario = DTL.id_usuario_cierre
+                        WHERE folio = ".$id ." 
                          LIMIT 1";
+            // echo $query;
             $result = $this->conn->prepare($query);
             $result->execute();
             return $result;
@@ -327,16 +338,15 @@ class cServicios extends BD
                             hora,
                             calle, 
                             calle1,
-                            calle2,
                             id_colonia, 
                             nombre,
                             telefono,
                             observaciones,
                             id_emergencia, 
                             id_operativo,
+                            otros_operativos,
                             id_llamada,
-                            id_turno,
-                            id_cuadrante )
+                            id_turno)
                         VALUES (
                             ?,
                             ?,
@@ -353,7 +363,6 @@ class cServicios extends BD
                             ?,
                             ?,
                             ?, 
-                            ?,
                             ?,
                             ?,
                             ? )";
@@ -377,30 +386,45 @@ class cServicios extends BD
         }
     }
 
-    public function updateReg( $data ){
-        $correcto   = 1;
-        $exec       = $this->conn->conexion();
-
+    public function insertRegVehicular( $data ){
+        $correcto= 1;
+        
+        $exec = $this->conn->conexion();
         try {
+            $queryMP = "INSERT INTO tbl_robo_vehicular(
+                            id_servicio,
+                            placas,
+                            modelo, 
+                            marca,
+                            subMarca,
+                            color,
+                            serie,)
+                        VALUES (
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ? )";
 
-            $queryUpdate = "UPDATE cat_colonias
-                               SET nombre = ?,
-                                   tipo = ?,
-                                   sector = ?,
-                                   region = ?
-                             WHERE id_colonia = ?";
-            
-                         $result = $this->conn->prepare($queryUpdate);
-
+            $result = $this->conn->prepare($queryMP);
             $exec->beginTransaction();
+
             $result->execute($data);
 
+            if ($correcto == 1){
+                $correcto= $exec->lastInsertId();
+            }
+
             $exec->commit();
-        }catch (\PDOException $e){
-            $exec->rollBack();
-            $correcto =  "Error!: " . $e->getMessage();
+            return $correcto;
         }
-        return $correcto;
+        catch(\PDOException $e)
+        {
+            $exec->rollBack();
+            return "Error!: " . $e->getMessage();
+        }
     }
 
 }

@@ -55,16 +55,15 @@ $app->post('/registros/servicios/show',function(Request $request, Response $resp
 
 		$folio = $cAccion->getDataIdServicio($idShow);
 
-		// $regD = $cAccion->getDataDtl( $folio );
-		// if ($regD->rowCount()) {
-		// 	while ($rsRowD = $regD->fetch(PDO::FETCH_ASSOC)){		
-		// 		$rowsDTL = $rsRowD;
-		// 	}
-		// }
+		$regD = $cAccion->getDataDtl( $folio );
+		if ($regD->rowCount()) {
+			while ($rsRowD = $regD->fetch(PDO::FETCH_ASSOC)){		
+				$rowsDTL = $rsRowD;
+			}
+		}
 
-		// $rows['servicio_dtl'] = $rowsDTL;
+		$rowDtl  = array_merge($rows, $rowsDTL);
 		
-
 		$regV = $cAccion->getDataVehiculo( $folio );
 		if ($regV->rowCount()) {
 			while ($rsRowV = $regV->fetch(PDO::FETCH_ASSOC)){		
@@ -72,19 +71,16 @@ $app->post('/registros/servicios/show',function(Request $request, Response $resp
 			}
 		}
 
-		$resultado  = array_merge($rows, $rowsV);
-
-
+		$rowVehiculo  = array_merge($rows, $rowsV);
+		$allRows  = array_merge($rowDtl, $rowVehiculo);
 		
 		$done = true;
 		$msg  = "Registros consultados correctamente";
-
-		
 		
 		$resp = new mensaje();
 		$resp->done  = $done;
 		$resp->msg   = $msg;
-		$resp->rows  = $resultado;
+		$resp->rows  = $allRows;
 
 		return $response->withJson($resp,200);
 			

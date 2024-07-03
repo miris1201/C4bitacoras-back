@@ -179,7 +179,7 @@ class cCat_cuadrantes extends BD
     public function getCatCuadrante( $sector ){
         try {
             $query = "SELECT id_cuadrante, 
-                             cuadrante,
+                             cuadrante, activo
                         FROM cat_cuadrantes 
                        WHERE activo = 1
                          AND sector = ". $sector ."
@@ -196,8 +196,8 @@ class cCat_cuadrantes extends BD
 
     public function getCatSector( $sector ){
         try {
-            $query = "SELECT sector
-                        FROM cat_cuadrantes 
+            $query = "SELECT sector, activo
+                        FROM cat_cuadrantes
                         WHERE activo = 1
                          AND id_zona = ". $sector ."
                        GROUP BY sector ";
@@ -213,7 +213,7 @@ class cCat_cuadrantes extends BD
    
     public function getCatZona(){
         try {
-            $query = "SELECT id_zona, zona
+            $query = "SELECT id_zona, zona, activo
                         FROM cat_zona 
                         WHERE activo = 1";
 
