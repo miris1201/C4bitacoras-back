@@ -7,7 +7,7 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/catalogos/servicios/comboEstatus',function(Request $request, Response $response){
+$app->post('/registros/servicios/comboEstatus',function(Request $request, Response $response){
 
 
 	$errorInfo  = false;

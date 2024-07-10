@@ -13,11 +13,12 @@ class cServicios extends BD
 
     private $id_rol;
 
-    public function getAllReg($limite, $inicio, $fin, $filtro, $filtroD, $id_rol, $id_zona) {
+    public function getAllReg($limite, $inicio, $fin, $filtro, $filtroD, $filtroS, $id_rol, $id_zona) {
         $limit      = "";
         $condition  = "";
         $zona_filter = "";
-        $depto_filter = " ";
+        $depto_filter = "";
+        $status_filter = "";
         $actual = '2024-06-17';
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
@@ -54,6 +55,10 @@ class cServicios extends BD
             $depto_filter = " AND E.id_departamento IN (". implode(', ', $filtroD).")";
         }
 
+        if( is_array($filtroS) && count($filtroS) > 0 ){
+            $status_filter = " AND s.id_status IN (". implode(', ', $filtroS).")";
+        }
+
         if ($id_rol > 1) {
             if (isset($id_zona) ) {
                 $zona_filter = " AND B.id_zona = ". $id_zona." ";
@@ -80,7 +85,7 @@ class cServicios extends BD
                             LEFT JOIN cat_estatus CS ON S.id_status = CS.id_estatus
                             LEFT JOIN cat_emergencia E ON S.id_emergencia = E.id_emergencia
                             LEFT JOIN cat_departamento D ON D.id_departamento = E.id_departamento
-                            WHERE 1 = 1 $depto_filter $cond_date $zona_filter $condition
+                            WHERE 1 = 1 $depto_filter $status_filter $cond_date $zona_filter $condition
                            ORDER BY S.id_status ASC, folio DESC ".$limit;
             // echo $query;
             $result = $this->conn->prepare($query);            
@@ -93,10 +98,11 @@ class cServicios extends BD
         }
     }
 
-    public function getAllExport($filtro, $filtroD, $id_rol, $id_zona) {
+    public function getAllExport($filtro, $filtroD, $filtroS, $id_rol, $id_zona) {
         $condition  = "";
         $zona_filter = "";
         $depto_filter = "";
+        $status_filter = "";
         $actual = '2024-06-17';
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
@@ -121,30 +127,42 @@ class cServicios extends BD
         }        
 
         if( is_array($filtroD) && count($filtroD) > 0 ){
-            $depto_filter .= " AND B.id_departamento IN (". implode(', ', $filtroD).")";
+            $depto_filter .= " AND D.id_departamento IN (". implode(', ', $filtroD).")";
         }
+
+        if( is_array($filtroS) && count($filtroS) > 0 ){
+            $status_filter = " AND S.id_status IN (". implode(', ', $filtroS).")";
+        }
+
 
         if ($id_rol == 3) {
             if (isset($id_zona) ) {            
-                $zona_filter = " AND B.id_zona = ". $id_zona." ";
+                $zona_filter = " AND S.id_zona = ". $id_zona." ";
                 
             }
         }
 
         try {
-            $query = "  SELECT folio AS FOLIO,
-                                CONCAT_WS(' ', DATE_FORMAT(fecha, '%d-%m-%Y'), hora) AS FECHA, 
-                                CASE WHEN B.id_zona = 1 THEN 'PONIENTE' ELSE 'ORIENTE' END AS ZONA,
-                                D.departamento AS DEPARTAMENTO,
-                                CONCAT_WS(' ', U.nombre, U.apepa, U.apema) AS USUARIO,
-                                unidad AS UNIDAD, 
-                                detalle AS DETALLE
-                            FROM tbl_bitacoras B
-                            LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usuario
-                            LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
-                            WHERE 1 = 1 $zona_filter $depto_filter $cond_date $condition
+            $query = "  SELECT id_servicio,
+                                folio,                       
+                                S.id_zona,
+                                S.id_status,
+                                S.id_emergencia,
+                                DATE_FORMAT(fecha, '%d-%m-%Y') AS fecha,
+                                hora,
+                                observaciones,
+                                S.id_emergencia,
+                                E.descripcion AS emergencia,
+                                D.id_departamento,
+                                D.departamento, 
+                                CS.descripcion AS estatus
+                            FROM tbl_servicios S
+                            LEFT JOIN cat_estatus CS ON S.id_status = CS.id_estatus
+                            LEFT JOIN cat_emergencia E ON S.id_emergencia = E.id_emergencia
+                            LEFT JOIN cat_departamento D ON D.id_departamento = E.id_departamento
+                            WHERE 1 = 1 $zona_filter $depto_filter $status_filter $cond_date $condition
                            ORDER BY folio DESC ";
-
+            // echo $query;
             $result = $this->conn->prepare($query);            
             $result->execute();
             return $result;
@@ -201,7 +219,8 @@ class cServicios extends BD
                                 S.otros_operativos,
                                 S.id_cuadrante,
                                 CC.sector,
-                                CC.cuadrante
+                                CC.cuadrante,
+                                C.region
                             FROM tbl_servicios S
                             LEFT JOIN cat_estatus CS ON S.id_status = CS.id_estatus
                             LEFT JOIN cat_emergencia E ON S.id_emergencia = E.id_emergencia
@@ -254,7 +273,7 @@ class cServicios extends BD
                                 hrecibe, 
                                 hasignacion, 
                                 harribo, 
-                                DATE_FORMAT(DTL.fecha_cierre, '%d-%m-%Y') AS fecha_cierre,
+                                DATE_FORMAT(DTL.fecha_cierre, '%d-%m-%Y %H:%i') AS fecha_cierre,
                                 CONCAT_WS(' ', WS.nombre, WS.apepa, WS.apema) AS usuario_cierre,
                                 DTL.id_emergencia_cierre, 
                                 E.descripcion AS emergencia_cierre, 
@@ -290,6 +309,23 @@ class cServicios extends BD
                         WHERE id_servicio = ".$id ." 
                          LIMIT 1";
                 // echo $query;
+            $result = $this->conn->prepare($query);
+            $result->execute();
+            return $result;
+        }
+        catch(\PDOException $e)
+        {
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
+    public function getDataNotas( $id ){
+        try {
+            $query = "  SELECT id_nota, id_servicio, 
+                               id_usuario, fecha_captura, 
+                               id_zona, descripcion
+                          FROM tbl_notas 
+                        WHERE id_servicio = ".$id ;
             $result = $this->conn->prepare($query);
             $result->execute();
             return $result;
@@ -398,7 +434,7 @@ class cServicios extends BD
                             marca,
                             subMarca,
                             color,
-                            serie,)
+                            serie)
                         VALUES (
                             ?,
                             ?,
@@ -416,6 +452,158 @@ class cServicios extends BD
             if ($correcto == 1){
                 $correcto= $exec->lastInsertId();
             }
+
+            $exec->commit();
+            return $correcto;
+        }
+        catch(\PDOException $e)
+        {
+            $exec->rollBack();
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
+    public function insertAsignacion( $data ){
+        $correcto= 1;
+        
+        $exec = $this->conn->conexion();
+        try {
+            $queryUP = "INSERT INTO tbl_servicios_dtl(
+                            id_servicio,
+                            folio,
+                            id_zona, 
+                            fecha_captura,
+                            id_usuario_dtl,
+                            unidad, 
+                            hasignacion)
+            VALUES (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ? )";
+            $result = $this->conn->prepare($queryUP);
+
+            $exec->beginTransaction();
+            $result->execute($data);
+
+            if ($correcto == 1){
+                $correcto= $exec->lastInsertId();
+            }
+
+            $exec->commit();
+            return $correcto;
+        }
+        catch(\PDOException $e)
+        {
+            $exec->rollBack();
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
+    public function insertResultado( $data ){
+        $correcto= 1;
+        
+        $exec = $this->conn->conexion();
+        try {
+            $queryUP = " UPDATE tbl_servicios_dtl
+                            SET resultado = ?, 
+                                hrecibe = ?, 
+                                harribo = ?, 
+                                id_emergencia_cierre = ?, 
+                                id_usuario_cierre = ?,
+                                fecha_cierre = ?, 
+                                id_tipo_cierre = ?, 
+                                id_tipo_emergencia = ? 
+                          WHERE folio = ? ";
+            $result = $this->conn->prepare($queryUP);
+
+            $exec->beginTransaction();
+            $result->execute($data);
+
+            $exec->commit();
+            return $correcto;
+        }
+        catch(\PDOException $e)
+        {
+            $exec->rollBack();
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
+    public function insertNotas( $data ){
+        $correcto= 1;
+        
+        $exec = $this->conn->conexion();
+        try {
+            $queryUP = "INSERT INTO tbl_notas(
+                            id_servicio,
+                            id_usuario,
+                            fecha_captura,
+                            id_zona,
+                            descripcion)
+            VALUES (
+                ?,
+                ?,
+                ?,
+                ?,
+                ? )";
+            $result = $this->conn->prepare($queryUP);
+
+            $exec->beginTransaction();
+            $result->execute($data);
+
+            if ($correcto == 1){
+                $correcto= $exec->lastInsertId();
+            }
+
+            $exec->commit();
+            return $correcto;
+        }
+        catch(\PDOException $e)
+        {
+            $exec->rollBack();
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
+    public function updateCuadranteServicio( $id_cuadrante, $folio ){
+        $correcto = 1;
+        
+        $exec = $this->conn->conexion();
+        try {
+            $queryUP = " UPDATE tbl_servicios
+                            SET id_cuadrante = $id_cuadrante
+                          WHERE folio = $folio ";
+            $result = $this->conn->prepare($queryUP);
+
+            $exec->beginTransaction();
+            $result->execute(  );
+
+            $exec->commit();
+            return $correcto;
+        }
+        catch(\PDOException $e)
+        {
+            $exec->rollBack();
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
+    public function updateStatusServicio( $status, $folio ){
+        $correcto = 1;
+        
+        $exec = $this->conn->conexion();
+        try {
+            $queryUP = " UPDATE tbl_servicios
+                            SET id_status = $status
+                          WHERE folio = $folio ";
+            $result = $this->conn->prepare($queryUP);
+
+            $exec->beginTransaction();
+            $result->execute();
 
             $exec->commit();
             return $correcto;

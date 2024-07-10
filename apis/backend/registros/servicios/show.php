@@ -26,6 +26,7 @@ $app->post('/registros/servicios/show',function(Request $request, Response $resp
 		$rowsV 	 = array();
 		$rowsDTL = array();
 		$rows	 = array();
+		$rowsN	 = array();
 		$msg 	 = "noValido";
 
 		if($idShow == ""){
@@ -72,7 +73,20 @@ $app->post('/registros/servicios/show',function(Request $request, Response $resp
 		}
 
 		$rowVehiculo  = array_merge($rows, $rowsV);
-		$allRows  = array_merge($rowDtl, $rowVehiculo);
+		$VRows  = array_merge($rowDtl, $rowVehiculo);
+
+		$rows  = array_merge($rows, $VRows);
+
+		$regN = $cAccion->getDataNotas( $folio );
+		if ($regN->rowCount()) {
+			while ($rsRowN = $regN->fetch(PDO::FETCH_ASSOC)){		
+				$rowsN[] = $rsRowN;
+			}
+		}
+
+		$rows['notas_dtl'] = $rowsN;
+
+		$allRows  = $rows;
 		
 		$done = true;
 		$msg  = "Registros consultados correctamente";

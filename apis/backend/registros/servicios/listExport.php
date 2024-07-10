@@ -1,25 +1,25 @@
 <?php
 $dir_fc = "../";
 
-include_once $dir_fc.'data/bitacoras.class.php';
+include_once $dir_fc.'data/servicios.class.php';
 require_once $dir_fc."common/function.class.php";	
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Firebase\JWT\JWT;
 
-$app->post('/registros/bitacora/listExport',function(Request $request, Response $response){
+$app->post('/registros/servicios/listExport',function(Request $request, Response $response){
 
 	$regIni  = $request->getParam('regIni');
 	$regFin  = $request->getParam('regFin');
 	$filtroB = $request->getParam('filtroB');
-	$isExport = $request->getParam('isExport');
 	$filtroD = $request->getParam('filtroD');
+	$filtroS = $request->getParam('filtroS');
 	$id_zona = $request->getParam('id_zona');
-	$id_rol = $request->getParam('id_rol');
+	$id_rol  = $request->getParam('id_rol');
 
 	$cFn 	 = new cFunction();
-	$cAccion = new cBitacoras();
+	$cAccion = new cServicios();
 	
 	$headers = $request->getHeaders();
 
@@ -40,7 +40,7 @@ $app->post('/registros/bitacora/listExport',function(Request $request, Response 
 			
 		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
 			
-		$lista     = $cAccion->getAllExport( $filtroB, $filtroD, $id_rol, $id_zona );
+		$lista     = $cAccion->getAllExport( $filtroB, $filtroD, $filtroS, $id_rol, $id_zona );
 		
 		$done 	   = false;
 		$rows	   = array();

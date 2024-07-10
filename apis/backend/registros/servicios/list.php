@@ -42,11 +42,11 @@ $app->post('/registros/servicios/list',function(Request $request, Response $resp
 		JWT::decode($token, _SECRET_JWT_, array('HS256')); //valida jwt, si no es válido tira una exepción
 
 
-		$totalReg  = $cAccion->getAllReg( 0, $regIni, $regFin, $filtroB, $filtroD, $id_rol, $id_zona );
+		$totalReg  = $cAccion->getAllReg( 0, $regIni, $regFin, $filtroB, $filtroD, $filtroS, $id_rol, $id_zona );
 
 		$limitReg = ( $isExport == 1 ) ? 0 : 1;
 
-		$lista     = $cAccion->getAllReg( $limitReg, $regIni, $regFin, $filtroB, $filtroD, $id_rol, $id_zona );
+		$lista     = $cAccion->getAllReg( $limitReg, $regIni, $regFin, $filtroB, $filtroD, $filtroS, $id_rol, $id_zona );
 		
 		$done 	   = false;
 		$rows	   = array();

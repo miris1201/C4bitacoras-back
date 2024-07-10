@@ -190,9 +190,16 @@ foreach ($datos as $key => $value) {
 		require_once('backend/registros/servicios/show.php');
 	} elseif($value == $api_complemento . "/apis/registros/servicios/listExport"){
 		require_once('backend/registros/servicios/listExport.php');
-	} elseif ($value == $api_complemento . "/apis/registros/servicios/comboEstatus") {
+	}  elseif ($value == $api_complemento . "/apis/registros/servicios/insertRespuesta") {
+		require_once('backend/registros/servicios/insertRespuesta.php');
+	} elseif ($value == $api_complemento . "/apis/registros/servicios/insertAsignacion") {
+		require_once('backend/registros/servicios/insertAsignacion.php');
+	}  elseif ($value == $api_complemento . "/apis/registros/servicios/insertNotas") {
+		require_once('backend/registros/servicios/insertNotas.php');
+	}  elseif ($value == $api_complemento . "/apis/registros/servicios/comboEstatus") {
 		require_once('backend/registros/servicios/comboEstatus.php');
-	} 
+	}
+
 }
 
 $app->run();
