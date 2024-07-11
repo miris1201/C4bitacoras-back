@@ -48,7 +48,7 @@ $app->post('/registros/servicios/listExport',function(Request $request, Response
 
 		if($lista->rowCount() > 0){
 
-			while ($rsRow = $lista->fetch(PDO::FETCH_ASSOC)){		
+			while ($rsRow = $lista->fetch(PDO::FETCH_ASSOC)){	
 				$rows[] = $rsRow;
 			}
 

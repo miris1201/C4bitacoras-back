@@ -106,21 +106,25 @@ class cServicios extends BD
         $actual = '2024-06-17';
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
-        $cond_date  = " AND fecha between '$yesterday' and '$actual' ";
+        $cond_date  = " AND S.fecha between '$yesterday' and '$actual' ";
 
         if (is_array($filtro)){
             
             if(isset($filtro['folio']) && $filtro['folio'] != ""){
-                $condition .= " AND folio = ".$filtro['folio']." ";
+                $condition .= " AND S.folio = ".$filtro['folio']." ";
                 $cond_date = "";
+            }
+
+            if(isset($filtro['id_emergencia']) && $filtro['id_emergencia'] != ""){
+                $condition .= " AND S.id_emergencia = ".$filtro['id_emergencia']." ";    
             }
 
             if(isset($filtro['fecha_inicial']) && $filtro['fecha_inicial'] != ""){
                 $cond_date = "";
                 if(isset($filtro['fecha_final']) && $filtro['fecha_final'] != ""){
-                    $condition .= " AND fecha BETWEEN '".$filtro['fecha_inicial']."' AND '".$filtro['fecha_final']."' ";
+                    $condition .= " AND S.fecha BETWEEN '".$filtro['fecha_inicial']."' AND '".$filtro['fecha_final']."' ";
                 } else {
-                    $condition .= " AND fecha = '".$filtro['fecha_inicial']."' ";
+                    $condition .= " AND S.fecha = '".$filtro['fecha_inicial']."' ";
                 }
             }
 
@@ -143,23 +147,52 @@ class cServicios extends BD
         }
 
         try {
-            $query = "  SELECT id_servicio,
-                                folio,                       
-                                S.id_zona,
-                                S.id_status,
-                                S.id_emergencia,
-                                DATE_FORMAT(fecha, '%d-%m-%Y') AS fecha,
-                                hora,
-                                observaciones,
-                                S.id_emergencia,
-                                E.descripcion AS emergencia,
-                                D.id_departamento,
-                                D.departamento, 
-                                CS.descripcion AS estatus
+            $query = "  SELECT  CASE S.id_turno
+                                    WHEN 1 THEN 'PRIMERO' 
+                                    WHEN 2 THEN 'SEGUNDO'  
+                                    WHEN 3 THEN 'TERCERO' 
+                                END AS TURNO,
+                                S.folio AS FOLIO,                       
+                                DATE_FORMAT(S.fecha, '%d-%m-%Y') AS FECHA,
+                                hora AS HORA,
+                                P.descripcion AS MEDIO,
+                                CASE S.id_zona
+                                    WHEN 1 THEN 'PONIENTE'
+                                    WHEN 2 THEN 'ORIENTE'
+                                END AS ZONA,
+                                C.region AS REGIÓN,
+                                C.sector AS SECTOR,
+                                CONCAT_WS(' - ', C.tipo, C.nombre) AS COLONIA,
+                                S.calle AS CALLE,
+                                S.calle1 AS ESQUINA,
+                                CONCAT_WS(' ', WS.nombre, WS.apepa, WS.apema) AS OPERADOR,
+                                S.nombre AS NOMBRE,
+                                S.telefono AS TELEFONO,
+                                D.departamento AS DEPARTAMENTO, 
+                                DTL.hasignacion AS ASIGNACIÓN,
+                                DTL.harribo AS ARRIBO,
+                                DTL.hrecibe AS TERMINO,
+                                DTL.unidad AS UNIDAD,
+                                O.descripcion AS OPERATIVO,
+                                E.descripcion AS EMERGENCIA_INICIAL,
+                                S.observaciones AS DETALLE_INICIAL,
+                                DTL.resultado AS DETALLE_FINAL,
+                                CE.descripcion AS EMERGENCIA_FINAL,
+                                TE.descripcion AS TIPO_EMERGENCIA,
+                                TC.descripcion AS TIPO_CIERRE,
+                                CONCAT_WS(' ', UC.nombre, UC.apepa, UC.apema) AS OPERADOR_CIERRE
                             FROM tbl_servicios S
-                            LEFT JOIN cat_estatus CS ON S.id_status = CS.id_estatus
+                            LEFT JOIN tbl_servicios_dtl DTL ON S.folio = DTL.folio
+                            LEFT JOIN cat_procedencia P ON S.id_llamada = P.id_procedencia
+                            LEFT JOIN cat_colonias C ON S.id_colonia = C.id_colonia
+                            LEFT JOIN ws_usuario WS ON S.id_usuario = WS.id_usuario
+                            LEFT JOIN cat_operativo O ON S.id_operativo = O.id_operativo
                             LEFT JOIN cat_emergencia E ON S.id_emergencia = E.id_emergencia
                             LEFT JOIN cat_departamento D ON D.id_departamento = E.id_departamento
+                            LEFT JOIN cat_emergencia CE ON DTL.id_emergencia_cierre = CE.id_emergencia
+                            LEFT JOIN cat_tipo_emergencia TE ON DTL.id_tipo_emergencia = TE.id_tipo_emergencia
+                            LEFT JOIN cat_tipo_cierre TC ON DTL.id_tipo_cierre = TC.id_tipo_cierre
+                            LEFT JOIN ws_usuario UC ON DTL.id_usuario_cierre = UC.id_usuario
                             WHERE 1 = 1 $zona_filter $depto_filter $status_filter $cond_date $condition
                            ORDER BY folio DESC ";
             // echo $query;
