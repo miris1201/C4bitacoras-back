@@ -44,9 +44,6 @@ class Rol extends BD
 
             if (is_array($filtro)){
             
-                if(isset($filtro['id_rol']) && $filtro['id_rol'] != ""){
-                    $condition = " AND id = '".$filtro['id_rol']."' ";
-                }
                 if(isset($filtro['rol']) && $filtro['rol'] != ""){
                     $condition = " AND rol LIKE '%".$filtro['rol']."%' ";
                 }
