@@ -19,7 +19,8 @@ class cServicios extends BD
         $zona_filter = "";
         $depto_filter = "";
         $status_filter = "";
-        $actual = '2024-06-17';
+        // $actual = '2025-01-02';
+        $actual = date('Y-m-d');
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
         $cond_date  = " AND fecha between '$yesterday' and '$actual' ";
@@ -61,7 +62,7 @@ class cServicios extends BD
 
         if ($id_rol > 1) {
             if (isset($id_zona) ) {
-                $zona_filter = " AND B.id_zona = ". $id_zona." ";
+                $zona_filter = " AND S.id_zona = ". $id_zona." ";
                 
             }
         }        
@@ -103,7 +104,8 @@ class cServicios extends BD
         $zona_filter = "";
         $depto_filter = "";
         $status_filter = "";
-        $actual = '2024-06-17';
+        // $actual = '2024-06-17';
+        $actual = date('Y-m-d');
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
         $cond_date  = " AND S.fecha between '$yesterday' and '$actual' ";
@@ -148,11 +150,11 @@ class cServicios extends BD
 
         try {
             $query = "  SELECT  CASE S.id_turno
-                                    WHEN 1 THEN 'PRIMERO' 
-                                    WHEN 2 THEN 'SEGUNDO'  
-                                    WHEN 3 THEN 'TERCERO' 
+                                    WHEN 1 THEN 'PRIMERO'
+                                    WHEN 2 THEN 'SEGUNDO'
+                                    WHEN 3 THEN 'TERCERO'
                                 END AS TURNO,
-                                S.folio AS FOLIO,                       
+                                S.folio AS FOLIO,
                                 DATE_FORMAT(S.fecha, '%d-%m-%Y') AS FECHA,
                                 hora AS HORA,
                                 P.descripcion AS MEDIO,
@@ -168,7 +170,7 @@ class cServicios extends BD
                                 CONCAT_WS(' ', WS.nombre, WS.apepa, WS.apema) AS OPERADOR,
                                 S.nombre AS NOMBRE,
                                 S.telefono AS TELEFONO,
-                                D.departamento AS DEPARTAMENTO, 
+                                D.departamento AS DEPARTAMENTO,
                                 DTL.hasignacion AS ASIGNACIÓN,
                                 DTL.harribo AS ARRIBO,
                                 DTL.hrecibe AS TERMINO,
@@ -185,7 +187,7 @@ class cServicios extends BD
                             LEFT JOIN tbl_servicios_dtl DTL ON S.folio = DTL.folio
                             LEFT JOIN cat_procedencia P ON S.id_llamada = P.id_procedencia
                             LEFT JOIN cat_colonias C ON S.id_colonia = C.id_colonia
-                            LEFT JOIN ws_usuario WS ON S.id_usuario = WS.id_usuario
+                            LEFT JOIN ws_usuario WS ON S.id_usr_captura = WS.id_usuario
                             LEFT JOIN cat_operativo O ON S.id_operativo = O.id_operativo
                             LEFT JOIN cat_emergencia E ON S.id_emergencia = E.id_emergencia
                             LEFT JOIN cat_departamento D ON D.id_departamento = E.id_departamento
@@ -261,9 +263,8 @@ class cServicios extends BD
                             LEFT JOIN cat_colonias C ON S.id_colonia = C.id_colonia
                             LEFT JOIN cat_operativo O ON S.id_operativo = O.id_operativo
                             LEFT JOIN cat_cuadrantes CC ON S.id_cuadrante = CC.id_cuadrante
-                         WHERE id_servicio = ".$id ." 
+                         WHERE id_servicio = ".$id ."
                          LIMIT 1";
-                // echo $queryMP;
             $result = $this->conn->prepare($queryMP);
             $result->execute();
             return $result;
@@ -280,11 +281,10 @@ class cServicios extends BD
                             FROM tbl_servicios 
                          WHERE id_servicio = ".$id ." 
                          LIMIT 1";
-                // echo $queryMP;
             $result = $this->conn->prepare($queryMP);
             $result->execute();
             while ($rw = $result->fetch(PDO::FETCH_OBJ)) {
-                $id = $rw->folio ;
+                $id = $rw->folio;
             }
             return $id;
         }
@@ -297,7 +297,7 @@ class cServicios extends BD
     public function getDataDtl( $id ){
         try {
             $query = "  SELECT  id_servicio_dtl, 
-                                DTL.id_servicio, 
+                                DTL.folio, 
                                 DTL.id_zona, 
                                 DATE_FORMAT(DTL.fecha_captura, '%d-%m-%Y') AS fecha_captura_dtl,
                                 CONCAT_WS(' ', US.nombre, US.apepa, US.apema) AS usuario_dtl,
@@ -322,7 +322,6 @@ class cServicios extends BD
                           LEFT JOIN ws_usuario WS ON WS.id_usuario = DTL.id_usuario_cierre
                         WHERE folio = ".$id ." 
                          LIMIT 1";
-            // echo $query;
             $result = $this->conn->prepare($query);
             $result->execute();
             return $result;
@@ -335,13 +334,12 @@ class cServicios extends BD
 
     public function getDataVehiculo( $id ){
         try {
-            $query = "  SELECT id_robo, id_servicio, 
-                                placas, modelo, marca, 
+            $query = "  SELECT id_robo, folio,
+                                placas, modelo, marca,
                                 subMarca, color, serie
-                          FROM tbl_robo_vehicular 
-                        WHERE id_servicio = ".$id ." 
+                          FROM tbl_robo_vehicular
+                        WHERE folio = ".$id ." 
                          LIMIT 1";
-                // echo $query;
             $result = $this->conn->prepare($query);
             $result->execute();
             return $result;
@@ -354,11 +352,11 @@ class cServicios extends BD
 
     public function getDataNotas( $id ){
         try {
-            $query = "  SELECT id_nota, id_servicio, 
-                               id_usuario, fecha_captura, 
+            $query = "  SELECT id_notas, folio,
+                               id_usr_captura, fecha_captura,
                                id_zona, descripcion
-                          FROM tbl_notas 
-                        WHERE id_servicio = ".$id ;
+                          FROM tbl_notas
+                        WHERE folio = ".$id ;
             $result = $this->conn->prepare($query);
             $result->execute();
             return $result;
@@ -400,7 +398,7 @@ class cServicios extends BD
             $queryMP = "INSERT INTO tbl_servicios(
                             folio,
                             fecha_captura,
-                            id_usuario, 
+                            id_usr_captura, 
                             id_zona,
                             id_status,
                             fecha,
@@ -461,7 +459,7 @@ class cServicios extends BD
         $exec = $this->conn->conexion();
         try {
             $queryMP = "INSERT INTO tbl_robo_vehicular(
-                            id_servicio,
+                            folio,
                             placas,
                             modelo, 
                             marca,
@@ -572,8 +570,8 @@ class cServicios extends BD
         $exec = $this->conn->conexion();
         try {
             $queryUP = "INSERT INTO tbl_notas(
-                            id_servicio,
-                            id_usuario,
+                            folio,
+                            id_usr_captura,
                             fecha_captura,
                             id_zona,
                             descripcion)

@@ -174,6 +174,8 @@ foreach ($datos as $key => $value) {
 	//Lista de Bitacoras
 	elseif($value == $api_complemento . "/apis/registros/bitacora/list"){
 		require_once('backend/registros/bitacora/list.php');
+	} elseif ($value == $api_complemento . "/apis/registros/bitacora/show") {
+		require_once('backend/registros/bitacora/show.php');
 	} elseif ($value == $api_complemento . "/apis/registros/bitacora/insertupdate") {
 		require_once('backend/registros/bitacora/insertupdate.php');
 	} elseif($value == $api_complemento . "/apis/registros/bitacora/listExport"){
