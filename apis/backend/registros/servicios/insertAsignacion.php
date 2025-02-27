@@ -62,7 +62,7 @@ $app->post('/registros/servicios/insertAsignacion',function(Request $request, Re
 			$id_zona,
 			$fecha_cap,
 			$id_usuario_dtl,
-			$unidad, 			
+			$unidad,
 			$hasignacion
 		);
 

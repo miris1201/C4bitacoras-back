@@ -17,8 +17,10 @@ class cBitacoras extends BD
         $limit      = "";
         $condition  = "";
         $zona_filter = "";
-        $depto_filter = " AND E.id_departamento = 0 ";
-        $actual = '2024-06-17';
+        $depto_filter = " ";
+        // $depto_filter = " AND E.id_departamento = 0 ";
+        // $actual = '2025-01-02';
+        $actual = date('Y-m-d');
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
         $cond_date  = " AND fecha between '$yesterday' and '$actual' ";
@@ -28,12 +30,10 @@ class cBitacoras extends BD
         
         if (is_array($filtro)){
             
-            
             if(isset($filtro['folio']) && $filtro['folio'] != ""){
                 $condition .= " AND folio = ".$filtro['folio']." ";
                 $cond_date = "";
             }
-
             
             if(isset($filtro['fecha_final']) && $filtro['fecha_inicial'] != ""){
                 if(isset($filtro['fecha_final']) && $filtro['fecha_final'] != ""){
@@ -43,8 +43,7 @@ class cBitacoras extends BD
                 }
 
                 $cond_date = "";
-            }
-            
+            }            
         }        
         
         if( is_array($filtroD) && count($filtroD) > 0 ){
@@ -58,21 +57,21 @@ class cBitacoras extends BD
             }
         }
         
-
         try {
             $query = "  SELECT id_bitacora,
                                 folio,
-                                B.id_usuario,
+                                B.id_usr_captura,
                                 B.id_zona,
                                 B.id_departamento,
                                 unidad, 
                                 hora,
                                 DATE_FORMAT(fecha, '%d-%m-%Y') AS fecha,
+                                DATE_FORMAT(fecha_captura, '%d-%m-%Y %H:%i:%s') AS fecha_captura,
                                 detalle,
                                 CONCAT_WS(' ', U.nombre, U.apepa, U.apema) AS usuario, 
                                 D.departamento
                             FROM tbl_bitacoras B
-                            LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usuario
+                            LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usr_captura
                             LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
                             WHERE 1 = 1 $depto_filter $cond_date $zona_filter $condition
                            ORDER BY folio DESC ".$limit;
@@ -87,11 +86,35 @@ class cBitacoras extends BD
         }
     }
 
+    public function getRegbyid( $id ){
+        try {
+            $queryMP = "SELECT id_bitacora,
+                                folio,
+                                fecha_captura, 
+                                id_usr_captura,
+                                CONCAT_WS(' ', U.nombre, U.apepa, U.apema) AS nm_usuario,
+                                usuario,
+                                detalle
+                            FROM tbl_bitacoras B
+                            LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usr_captura
+                         WHERE id_bitacora = ".$id ."
+                         LIMIT 1";
+            $result = $this->conn->prepare($queryMP);
+            $result->execute();
+            return $result;
+        }
+        catch(\PDOException $e)
+        {
+            return "Error!: " . $e->getMessage();
+        }
+    }
+
     public function getAllExport($filtro, $filtroD, $id_rol, $id_zona) {
         $condition  = "";
         $zona_filter = "";
         $depto_filter = "";
-        $actual = '2024-06-17';
+        // $actual = '2024-06-17';
+        $actual = date('Y-m-d');
         // $yesterday   =  date('Y-m-d', strtotime('yesterday') );
         $yesterday   =  date('Y-m-d', strtotime($actual. '-01') );
         $cond_date  = " AND fecha between '$yesterday' and '$actual' ";
@@ -134,7 +157,7 @@ class cBitacoras extends BD
                                 unidad AS UNIDAD, 
                                 detalle AS DETALLE
                             FROM tbl_bitacoras B
-                            LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usuario
+                            LEFT JOIN ws_usuario U ON U.id_usuario = B.id_usr_captura
                             LEFT JOIN cat_departamento D ON D.id_departamento = B.id_departamento
                             WHERE 1 = 1 $zona_filter $depto_filter $cond_date $condition
                            ORDER BY folio DESC ";
@@ -212,7 +235,7 @@ class cBitacoras extends BD
             $queryMP = "INSERT INTO tbl_bitacoras(
                             folio,
                             fecha_captura,
-                            id_usuario, 
+                            id_usr_captura, 
                             id_zona, 
                             id_departamento,
                             unidad,
